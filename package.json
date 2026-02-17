@@ -1,7 +1,7 @@
 {
   "name": "gorillabuild",
   "private": true,
-  "packageManager": "bun@1.1.31",
+  "packageManager": "bun@1.3.9",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "preinstall": "node -e \"if(!process.env.BUN_INSTALL)throw new Error('Use bun install')\"",
