@@ -1,0 +1,19 @@
+{
+  "name": "gorillabuild",
+  "private": true,
+  "packageManager": "bun@1.1.31",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "preinstall": "node -e \"if(!process.env.BUN_INSTALL)throw new Error('Use bun install')\"",
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@gorillabuild/web",
+    "dev:mobile": "turbo run dev --filter=@gorillabuild/mobile",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "checks": "bun scripts/checks.js"
+  },
+  "devDependencies": {
+    "turbo": "^2"
+  }
+}
