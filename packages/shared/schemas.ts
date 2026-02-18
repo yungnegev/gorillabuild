@@ -1,10 +1,11 @@
 import { z } from "zod";
 
-// Placeholder schema — replace with real ones as you build features
 export const userSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.string().email(),
+  id: z.string(),                          // Clerk user ID
+  username: z.string().nullable(),
+  email: z.string().email().optional(),    // from Clerk, not stored in DB
+  name: z.string().optional(),             // from Clerk, not stored in DB
+  imageUrl: z.string().url().optional(),   // from Clerk, not stored in DB
   createdAt: z.string().datetime(),
 });
 

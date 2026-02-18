@@ -8,6 +8,13 @@
       "when": 1771370574573,
       "tag": "0000_minor_justice",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1771370700000,
+      "tag": "0001_clerk_users",
+      "breakpoints": true
     }
   ]
 }
