@@ -11,7 +11,10 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "checks": "bun scripts/checks.js"
+    "checks": "bun scripts/checks.js",
+    "db:generate": "turbo run db:generate --filter=@gorillabuild/web",
+    "db:migrate": "turbo run db:migrate --filter=@gorillabuild/web",
+    "db:studio": "turbo run db:studio --filter=@gorillabuild/web"
   },
   "devDependencies": {
     "turbo": "^2"
