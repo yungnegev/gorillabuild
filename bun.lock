@@ -29,6 +29,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@clerk/nextjs": "^6.37.5",
+        "@heroicons/react": "^2.2.0",
         "@libsql/client": "^0.17.0",
         "drizzle-orm": "^0.45.1",
         "next": "16.1.6",
@@ -463,6 +464,8 @@
     "@gorillabuild/shared": ["@gorillabuild/shared@workspace:packages/shared"],
 
     "@gorillabuild/web": ["@gorillabuild/web@workspace:apps/web"],
+
+    "@heroicons/react": ["@heroicons/react@2.2.0", "", { "peerDependencies": { "react": ">= 16 || ^19.0.0-rc" } }, "sha512-LMcepvRaS9LYHJGsF0zzmgKCUim/X3N/DQKc4jepAXJ7l8QxJ1PmxJzqplF2Z3FE4PqBAIGyJAQ/w4B5dsqbtQ=="],
 
     "@humanfs/core": ["@humanfs/core@0.19.1", "", {}, "sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA=="],
 
