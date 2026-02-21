@@ -4,6 +4,7 @@ import { and, eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { friendships, users } from "@/db/schema";
+import type { FriendItem } from "@/lib/friends";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export async function GET() {
 
   const clerk = await clerkClient();
 
-  const friends = await Promise.all(
+  const friends: FriendItem[] = await Promise.all(
     rows.map(async (row) => {
       const friendId = row.fromUserId === userId ? row.toUserId : row.fromUserId;
       const [dbUser] = await db.select().from(users).where(eq(users.id, friendId)).limit(1);
@@ -53,6 +54,9 @@ const sendRequestSchema = z.object({ handle: z.string().min(1) });
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Ленивое создание записи текущего пользователя в users (если вебхук Clerk ещё не сработал)
+  await db.insert(users).values({ id: userId }).onConflictDoNothing();
 
   const body = sendRequestSchema.safeParse(await req.json().catch(() => ({})));
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });

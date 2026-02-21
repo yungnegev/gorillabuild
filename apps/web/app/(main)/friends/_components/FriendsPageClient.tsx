@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
 import type { FriendItem, FriendRequestItem } from "@/lib/friends";
 import { AddFriendForm } from "./AddFriendForm";
 import { FriendCard } from "./FriendCard";
+import { FriendRequestCard } from "./FriendRequestCard";
 
 interface Props {
   initialFriends: FriendItem[];
@@ -14,6 +16,8 @@ interface Props {
 export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
   const router = useRouter();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
+  const [acceptingId, setAcceptingId] = useState<number | null>(null);
 
   async function handleAddFriend(handle: string) {
     const res = await fetch("/api/friends", {
@@ -34,9 +38,25 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
   }
 
   async function handleAcceptRequest(friendshipId: number) {
-    const res = await fetch(`/api/friends/${friendshipId}/accept`, { method: "PATCH" });
-    if (!res.ok) throw new Error("Не удалось принять заявку");
-    router.refresh();
+    setAcceptError(null);
+    setAcceptingId(friendshipId);
+    try {
+      const res = await fetch(`/api/friends/${friendshipId}/accept`, { method: "PATCH" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const message =
+          typeof data.error === "string"
+            ? data.error
+            : data.error?.message ?? "Не удалось принять заявку";
+        setAcceptError(message);
+        return;
+      }
+      router.refresh();
+    } catch {
+      setAcceptError("Не удалось принять заявку");
+    } finally {
+      setAcceptingId(null);
+    }
   }
 
   return (
@@ -49,7 +69,7 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
             onClick={() => setShowAddForm(true)}
             className="rounded-md border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10"
           >
-            Add friend
+            Добавить друга
           </button>
         )}
       </div>
@@ -64,26 +84,19 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
       {initialRequests.length > 0 && (
         <div className="space-y-2">
           <h2 className="text-sm font-medium text-white/70">Входящие заявки</h2>
-          <ul className="space-y-2">
+          {acceptError && (
+            <p className="text-sm text-red-400" role="alert">
+              {acceptError}
+            </p>
+          )}
+          <ul className="space-y-3">
             {initialRequests.map((req) => (
-              <li
+              <FriendRequestCard
                 key={req.friendshipId}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/10 p-3"
-              >
-                <span className="font-medium">
-                  {req.name || req.username || req.fromUserId}
-                  {req.username && (
-                    <span className="ml-1 text-sm text-white/50">@{req.username}</span>
-                  )}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleAcceptRequest(req.friendshipId)}
-                  className="rounded-md bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-white/90"
-                >
-                  Принять
-                </button>
-              </li>
+                request={req}
+                isAccepting={acceptingId === req.friendshipId}
+                onAccept={() => handleAcceptRequest(req.friendshipId)}
+              />
             ))}
           </ul>
         </div>
@@ -94,7 +107,7 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
           <div className="rounded-xl border border-white/10 p-6 text-center">
             <p className="text-white/50">Друзей пока нет</p>
             <p className="mt-2 text-sm text-white/40">
-              Нажмите «Add friend» и введите handle пользователя, чтобы отправить заявку.
+              Нажмите «Добавить друга» и введите handle пользователя, чтобы отправить заявку.
             </p>
           </div>
         )}

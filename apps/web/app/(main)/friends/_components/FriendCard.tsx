@@ -27,7 +27,7 @@ export function FriendCard({ friend }: Props) {
           alt=""
           width={40}
           height={40}
-          className="size-10 rounded-full object-cover"
+          className="size-10 shrink-0 rounded-full object-cover"
           onError={() => setImageError(true)}
         />
       ) : (

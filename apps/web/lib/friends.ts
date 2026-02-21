@@ -19,6 +19,7 @@ export type FriendRequestItem = {
   fromUserId: string;
   username: string | null;
   name: string | null;
+  imageUrl: string | null;
   createdAt: string;
 };
 
@@ -82,6 +83,7 @@ export async function getFriendRequests(userId: string): Promise<FriendRequestIt
         name: clerkUser
           ? `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || null
           : null,
+        imageUrl: clerkUser?.imageUrl ?? null,
         createdAt: row.createdAt.toISOString(),
       };
     })
