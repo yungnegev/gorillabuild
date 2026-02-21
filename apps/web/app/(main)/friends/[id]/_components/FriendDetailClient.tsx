@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { AvatarPlaceholder } from "@/app/_components/AvatarPlaceholder";
 import { Loader } from "@/app/_components/Loader";
 import type { FriendDetail, FriendExerciseSummary } from "@/lib/friends";
 
@@ -51,10 +52,9 @@ function ComparisonChart({
   myLabel: string;
   friendLabel: string;
 }) {
-  const myBodyWeights = data.mine.bodyWeights ?? [];
-  const friendBodyWeights = data.friend.bodyWeights ?? [];
-
   const chartData = useMemo(() => {
+    const myBodyWeights = data.mine.bodyWeights ?? [];
+    const friendBodyWeights = data.friend.bodyWeights ?? [];
     const myMap = new Map(
       data.mine.points.map((p) => {
         const dateStr = p.date.slice(0, 10);
@@ -91,7 +91,7 @@ function ComparisonChart({
       myRatio: myMap.get(date)?.ratio ?? null,
       friendRatio: friendMap.get(date)?.ratio ?? null,
     }));
-  }, [data, myBodyWeights, friendBodyWeights]);
+  }, [data]);
 
   const isEmpty = chartData.length === 0;
 
@@ -247,7 +247,7 @@ function ExerciseRow({
       <button
         type="button"
         onClick={handleToggle}
-        className="flex w-full items-center justify-between gap-3 p-4 text-left hover:bg-white/5 transition-colors"
+        className="flex w-full cursor-pointer items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-white/5"
       >
         <span className="font-medium">{exercise.name}</span>
         <div className="flex shrink-0 items-center gap-4">
@@ -313,9 +313,11 @@ export function FriendDetailClient({ friend, initialExercises }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<ChartMode>("absolute");
 
+  const [friendImageError, setFriendImageError] = useState(false);
   const displayName = friend.name || friend.username || friend.userId;
   const myLabel = "Вы";
   const friendLabel = friend.username ? `@${friend.username}` : (friend.name ?? "Друг");
+  const showFriendImage = friend.imageUrl && !friendImageError;
 
   return (
     <section className="space-y-6">
@@ -324,7 +326,7 @@ export function FriendDetailClient({ friend, initialExercises }: Props) {
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-white/60 hover:text-white"
+            className="cursor-pointer text-white/60 hover:text-white"
             aria-label="Назад"
           >
             ←
@@ -337,14 +339,14 @@ export function FriendDetailClient({ friend, initialExercises }: Props) {
           <button
             type="button"
             onClick={() => setMode("absolute")}
-            className={`rounded px-2 py-1 text-sm ${mode === "absolute" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"}`}
+            className={`cursor-pointer rounded px-2 py-1 text-sm ${mode === "absolute" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"}`}
           >
             absolute
           </button>
           <button
             type="button"
             onClick={() => setMode("ratio")}
-            className={`rounded px-2 py-1 text-sm ${mode === "ratio" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"}`}
+            className={`cursor-pointer rounded px-2 py-1 text-sm ${mode === "ratio" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"}`}
           >
             ratio
           </button>
@@ -353,21 +355,17 @@ export function FriendDetailClient({ friend, initialExercises }: Props) {
 
       {/* Friend profile */}
       <div className="flex items-center gap-4 rounded-xl border border-white/10 p-4">
-        {friend.imageUrl ? (
+        {showFriendImage ? (
           <Image
-            src={friend.imageUrl}
+            src={friend.imageUrl!}
             alt=""
             width={48}
             height={48}
             className="size-12 rounded-full object-cover"
+            onError={() => setFriendImageError(true)}
           />
         ) : (
-          <div
-            aria-hidden
-            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-base font-semibold text-white"
-          >
-            {(displayName || "?").charAt(0).toUpperCase()}
-          </div>
+          <AvatarPlaceholder size={48} />
         )}
         <div className="min-w-0">
           <p className="font-semibold">{displayName}</p>

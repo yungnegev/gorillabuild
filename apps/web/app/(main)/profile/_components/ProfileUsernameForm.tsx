@@ -65,7 +65,7 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
     return (
       <div className="rounded-xl border border-white/10 px-4 py-3 text-sm">
         <div className="flex items-center gap-2">
-          <span className="text-white/50">Ник</span>
+          <span className="text-white/70">Ник</span>
           <span className="text-white">{currentUsername}</span>
           <button
             type="button"

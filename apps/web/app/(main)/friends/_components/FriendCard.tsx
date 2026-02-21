@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
+import { AvatarPlaceholder } from "@/app/_components/AvatarPlaceholder";
 import type { FriendItem } from "@/lib/friends";
 
 interface Props {
@@ -8,28 +12,26 @@ interface Props {
 }
 
 export function FriendCard({ friend }: Props) {
+  const [imageError, setImageError] = useState(false);
   const displayName = friend.name || friend.username || friend.userId;
+  const showImage = friend.imageUrl && !imageError;
 
   return (
     <Link
       href={`/friends/${friend.friendshipId}`}
-      className="flex items-center gap-3 rounded-xl border border-white/10 p-4 transition-colors hover:border-white/20 hover:bg-white/5"
+      className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-4 transition-colors hover:border-white/20 hover:bg-white/5"
     >
-      {friend.imageUrl ? (
+      {showImage ? (
         <Image
-          src={friend.imageUrl}
+          src={friend.imageUrl!}
           alt=""
           width={40}
           height={40}
           className="size-10 rounded-full object-cover"
+          onError={() => setImageError(true)}
         />
       ) : (
-        <div
-          aria-hidden
-          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-medium text-white"
-        >
-          {(displayName || "?").charAt(0).toUpperCase()}
-        </div>
+        <AvatarPlaceholder size={40} />
       )}
       <div className="min-w-0 flex-1">
         <p className="font-semibold">{displayName}</p>
