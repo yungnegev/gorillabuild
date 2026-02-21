@@ -16,3 +16,17 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* Убираем focus outline у Recharts при клике (фокус может попадать на wrapper, svg, path) */
+.recharts-responsive-container,
+.recharts-wrapper,
+.recharts-responsive-container *,
+.recharts-wrapper * {
+  outline: none !important;
+}
+.recharts-responsive-container:focus,
+.recharts-wrapper:focus,
+.recharts-responsive-container *:focus,
+.recharts-wrapper *:focus {
+  outline: none !important;
+}

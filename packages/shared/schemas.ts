@@ -211,12 +211,27 @@ export const createGoalSchema = z.object({
 
 export type CreateGoal = z.infer<typeof createGoalSchema>;
 
+export const updateGoalSchema = z.object({
+  targetOneRm: z.number().positive(),
+  targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export type UpdateGoal = z.infer<typeof updateGoalSchema>;
+
 // ─── Comparison ───────────────────────────────────────────────────────────────
+
+export const comparisonBodyWeightSchema = z.object({
+  date: z.string(),       // YYYY-MM-DD
+  weightKg: z.number(),
+});
+
+export type ComparisonBodyWeight = z.infer<typeof comparisonBodyWeightSchema>;
 
 export const comparisonSeriesSchema = z.object({
   userId: z.string(),
   username: z.string().nullable(),
   points: z.array(oneRmPointSchema),
+  bodyWeights: z.array(comparisonBodyWeightSchema).optional(),
 });
 
 export type ComparisonSeries = z.infer<typeof comparisonSeriesSchema>;

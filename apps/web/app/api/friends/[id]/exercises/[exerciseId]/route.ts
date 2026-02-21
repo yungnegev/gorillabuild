@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { and, eq, isNotNull, or } from "drizzle-orm";
 import { db } from "@/db";
-import { exercises, friendships, setEntries, users, workoutExercises, workouts } from "@/db/schema";
+import { bodyWeightEntries, exercises, friendships, setEntries, users, workoutExercises, workouts } from "@/db/schema";
 import { calcOneRm } from "@/lib/1rm";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +55,14 @@ async function buildSeries(targetUserId: string, exerciseId: number) {
     }));
 }
 
+async function getBodyWeightsForUser(targetUserId: string): Promise<{ date: string; weightKg: number }[]> {
+  return db
+    .select({ date: bodyWeightEntries.date, weightKg: bodyWeightEntries.weightKg })
+    .from(bodyWeightEntries)
+    .where(eq(bodyWeightEntries.userId, targetUserId))
+    .orderBy(bodyWeightEntries.date);
+}
+
 /**
  * GET /api/friends/[id]/exercises/[exerciseId]
  * Возвращает данные сравнения "я vs друг" по упражнению.
@@ -102,14 +110,16 @@ export async function GET(
   const [myUser] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   const [friendUser] = await db.select().from(users).where(eq(users.id, friendId)).limit(1);
 
-  const [myPoints, friendPoints] = await Promise.all([
+  const [myPoints, friendPoints, myBodyWeights, friendBodyWeights] = await Promise.all([
     buildSeries(userId, exerciseId),
     buildSeries(friendId, exerciseId),
+    getBodyWeightsForUser(userId),
+    getBodyWeightsForUser(friendId),
   ]);
 
   return NextResponse.json({
     exercise,
-    mine: { userId, username: myUser?.username ?? null, points: myPoints },
-    friend: { userId: friendId, username: friendUser?.username ?? null, points: friendPoints },
+    mine: { userId, username: myUser?.username ?? null, points: myPoints, bodyWeights: myBodyWeights },
+    friend: { userId: friendId, username: friendUser?.username ?? null, points: friendPoints, bodyWeights: friendBodyWeights },
   });
 }

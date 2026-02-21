@@ -1,10 +1,20 @@
-export default function FriendsPage() {
+import { auth } from "@clerk/nextjs/server";
+import { getFriendRequests, getFriends } from "@/lib/friends";
+import { FriendsPageClient } from "./_components/FriendsPageClient";
+
+export default async function FriendsPage() {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const [initialFriends, initialRequests] = await Promise.all([
+    getFriends(userId),
+    getFriendRequests(userId),
+  ]);
+
   return (
-    <section className="space-y-3">
-      <h1 className="text-2xl font-bold">Friends</h1>
-      <p className="text-white/75">
-        Здесь будет добавление друзей и сравнение прогресса 1RM по упражнениям.
-      </p>
-    </section>
+    <FriendsPageClient
+      initialFriends={initialFriends}
+      initialRequests={initialRequests}
+    />
   );
 }

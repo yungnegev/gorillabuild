@@ -116,8 +116,8 @@ export function BodyWeightChart({ entries }: Props) {
         </p>
       </div>
 
-      <div className="h-44">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-44 min-h-[176px] w-full" style={{ minWidth: 0 }}>
+        <ResponsiveContainer width="100%" height={176}>
           <LineChart
             data={chartModel.data}
             margin={{ top: 10, right: 8, left: 0, bottom: 0 }}

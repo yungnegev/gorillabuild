@@ -93,3 +93,48 @@ export async function deactivateGoalById(userId: string, goalId: number): Promis
 
   return result.length > 0;
 }
+
+export async function updateGoal(
+  userId: string,
+  goalId: number,
+  data: { targetOneRm: number; targetDate: string }
+): Promise<boolean> {
+  const result = await db
+    .update(goals)
+    .set({
+      targetOneRm: data.targetOneRm,
+      targetDate: data.targetDate,
+    })
+    .where(and(eq(goals.id, goalId), eq(goals.userId, userId), eq(goals.isActive, true)))
+    .returning({ id: goals.id });
+
+  return result.length > 0;
+}
+
+/** Активная цель по одному упражнению с currentOneRm и remainingKg, или null */
+export async function getActiveGoalForExercise(
+  userId: string,
+  exerciseId: number
+): Promise<{
+  id: number;
+  exerciseId: number;
+  exerciseName: string;
+  targetOneRm: number;
+  targetDate: string;
+  currentOneRm: number | null;
+  remainingKg: number | null;
+} | null> {
+  const goalsWithProgress = await getActiveGoalsWithProgress(userId);
+  const goal = goalsWithProgress.find((g) => g.exerciseId === exerciseId) ?? null;
+  return goal
+    ? {
+        id: goal.id,
+        exerciseId: goal.exerciseId,
+        exerciseName: goal.exerciseName,
+        targetOneRm: goal.targetOneRm,
+        targetDate: goal.targetDate,
+        currentOneRm: goal.currentOneRm ?? null,
+        remainingKg: goal.remainingKg ?? null,
+      }
+    : null;
+}

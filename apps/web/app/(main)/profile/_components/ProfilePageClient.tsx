@@ -2,9 +2,11 @@
 
 import type { BodyWeightEntry, User } from "@gorillabuild/shared/schemas";
 import { useEffect, useMemo, useState } from "react";
+import { Loader } from "@/app/_components/Loader";
 import { BodyWeightChart } from "./BodyWeightChart";
 import { BodyWeightForm } from "./BodyWeightForm";
 import { BodyWeightHistory } from "./BodyWeightHistory";
+import { ProfileUsernameForm } from "./ProfileUsernameForm";
 
 function pickLatestEntry(entries: BodyWeightEntry[]): BodyWeightEntry | null {
   if (entries.length === 0) return null;
@@ -109,12 +111,8 @@ export function ProfilePageClient() {
     return (
       <section className="space-y-4">
         <h1 className="text-2xl font-bold">Профиль</h1>
-        <div className="flex items-center gap-3 rounded-xl border border-white/10 p-4">
-          <span
-            aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-          />
-          <p className="text-white/70">Загружаем данные профиля...</p>
+        <div className="rounded-xl border border-white/10 p-4">
+          <Loader message="Загружаем данные профиля..." />
         </div>
       </section>
     );
@@ -125,11 +123,20 @@ export function ProfilePageClient() {
       <h1 className="text-2xl font-bold">Профиль</h1>
 
       {user && (
-        <div className="rounded-xl border border-white/10 p-4 text-sm">
-          <p className="text-white/70">
-            Пользователь: <span className="text-white">{user.name ?? user.username ?? "—"}</span>
-          </p>
-        </div>
+        <>
+          <div className="rounded-xl border border-white/10 p-4 text-sm">
+            <p className="text-white/70">
+              Имя: <span className="text-white">{user.name ?? "—"}</span>
+            </p>
+          </div>
+
+          <ProfileUsernameForm
+            currentUsername={user.username ?? null}
+            onSaved={(username) =>
+              setUser((prev) => (prev ? { ...prev, username } : null))
+            }
+          />
+        </>
       )}
 
       <BodyWeightForm

@@ -23,6 +23,7 @@ export async function GET() {
     .select()
     .from(workouts)
     .where(and(eq(workouts.userId, userId), isNull(workouts.finishedAt)))
+    .orderBy(desc(workouts.startedAt))
     .limit(1);
 
   if (!active) return NextResponse.json(null);

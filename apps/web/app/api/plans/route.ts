@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { workoutPlans, planExercises, exercises } from "@/db/schema";
 import { createPlanSchema } from "@gorillabuild/shared";
@@ -16,7 +16,7 @@ export async function GET() {
     .select()
     .from(workoutPlans)
     .where(eq(workoutPlans.userId, userId))
-    .orderBy(workoutPlans.updatedAt);
+    .orderBy(desc(workoutPlans.updatedAt));
 
   return NextResponse.json(plans);
 }

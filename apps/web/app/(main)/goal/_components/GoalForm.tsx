@@ -9,19 +9,41 @@ interface FormData {
   targetDate: string;
 }
 
+export interface GoalFormInitialGoal {
+  id: number;
+  exerciseId: number;
+  targetOneRm: number;
+  targetDate: string;
+}
+
 interface Props {
   exercises: Exercise[];
+  initialExerciseId?: number;
+  initialGoal?: GoalFormInitialGoal;
   onSubmit: (data: FormData) => Promise<void>;
   onCancel: () => void;
 }
 
-export function GoalForm({ exercises, onSubmit, onCancel }: Props) {
-  const [exerciseId, setExerciseId] = useState<number | "">("");
-  const [targetOneRm, setTargetOneRm] = useState(60);
-  const [targetDate, setTargetDate] = useState("");
+export function GoalForm({
+  exercises,
+  initialExerciseId,
+  initialGoal,
+  onSubmit,
+  onCancel,
+}: Props) {
+  const [exerciseId, setExerciseId] = useState<number | "">(
+    initialGoal?.exerciseId ?? initialExerciseId ?? ""
+  );
+  const [targetOneRm, setTargetOneRm] = useState(
+    initialGoal?.targetOneRm ?? 60
+  );
+  const [targetDate, setTargetDate] = useState(
+    initialGoal?.targetDate ?? ""
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isEdit = initialGoal != null;
   const today = new Date().toISOString().split("T")[0];
 
   async function handleSubmit(e: React.FormEvent) {
@@ -45,7 +67,7 @@ export function GoalForm({ exercises, onSubmit, onCancel }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-white/10 p-4">
-      <p className="font-medium">Новая цель</p>
+      <p className="font-medium">{isEdit ? "Изменить цель" : "Новая цель"}</p>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
@@ -55,9 +77,10 @@ export function GoalForm({ exercises, onSubmit, onCancel }: Props) {
         </label>
         <select
           id="exerciseId"
-          className="w-full rounded-md border border-white/10 bg-transparent p-2"
+          className="w-full rounded-md border border-white/10 bg-transparent p-2 disabled:opacity-60"
           value={exerciseId}
           onChange={(e) => setExerciseId(e.target.value ? Number(e.target.value) : "")}
+          disabled={isEdit}
         >
           <option value="">Выберите упражнение</option>
           {exercises.map((ex) => (

@@ -57,3 +57,11 @@ Epley: \(1RM = w \cdot (1 + reps / 30)\)
 | `SetEntry` | `workoutExerciseId`, `order`, `weightKg`, `reps` |
 | `BodyWeightEntry` | `userId`, `date`, `weightKg` |
 | `Goal` | `exerciseId`, `targetOneRm`, `targetDate`, `isActive` |
+
+## Уточнения (веб)
+
+- При отсутствии завершённых тренировок с этим упражнением показывается пустое состояние (график не рисуется).
+- В режиме ratio, если записей массы тела на даты тренировок нет, показывается сообщение с призывом добавить вес в профиле.
+- «Поставить цель» ведёт на `/goal?exerciseId=...` (форма с предзаполненным упражнением).
+- «Изменить цель» ведёт на `/goal`.
+- Открытие из Friend Detail: переход на Exercise Detail доступен из Active Workout. В Friend Detail упражнения раскрываются inline с графиком сравнения.

@@ -107,7 +107,7 @@ export async function PATCH(
   });
 }
 
-/** DELETE /api/plans/[id] */
+/** DELETE /api/plans/[id] — удаление плана (сначала plan_exercises, затем план) */
 export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -118,9 +118,15 @@ export async function DELETE(
   const planId = Number((await params).id);
   if (isNaN(planId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  await db
-    .delete(workoutPlans)
-    .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)));
+  const [plan] = await db
+    .select()
+    .from(workoutPlans)
+    .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)))
+    .limit(1);
+  if (!plan) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  await db.delete(planExercises).where(eq(planExercises.planId, planId));
+  await db.delete(workoutPlans).where(eq(workoutPlans.id, planId));
 
   return NextResponse.json({ ok: true });
 }

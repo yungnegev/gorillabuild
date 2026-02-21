@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MobileBottomNav } from "../_components/MobileBottomNav";
 
 export default function MainLayout({
@@ -11,12 +12,14 @@ export default function MainLayout({
       <header className="border-b border-white/10">
         <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
           <Link href="/" className="flex items-center gap-3">
-            <div
+            <Image
+              src="/logo.png"
+              alt=""
+              width={28}
+              height={28}
+              className="size-7 rounded-md"
               aria-hidden
-              className="flex size-7 items-center justify-center rounded-md bg-lime-400 text-sm font-black text-black"
-            >
-              GB
-            </div>
+            />
             <span className="text-sm font-semibold tracking-wide text-white">Gorilla Build</span>
           </Link>
         </div>

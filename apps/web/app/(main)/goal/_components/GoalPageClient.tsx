@@ -2,20 +2,27 @@
 
 import { useState } from "react";
 import type { Exercise, Goal } from "@gorillabuild/shared/schemas";
+import { Loader } from "@/app/_components/Loader";
 import { GoalCard } from "./GoalCard";
 import { GoalForm } from "./GoalForm";
 
 interface Props {
   initialGoals: Goal[];
   initialExercises: Exercise[];
+  initialExerciseId?: number;
 }
 
-export function GoalPageClient({ initialGoals, initialExercises }: Props) {
+export function GoalPageClient({
+  initialGoals,
+  initialExercises,
+  initialExerciseId,
+}: Props) {
   const [goals, setGoals] = useState<Goal[]>(initialGoals);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [exercises] = useState<Exercise[]>(initialExercises);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(initialExerciseId != null);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
   async function loadGoals() {
     try {
@@ -43,7 +50,37 @@ export function GoalPageClient({ initialGoals, initialExercises }: Props) {
     });
     if (!res.ok) throw new Error(`Ошибка сохранения: ${res.status}`);
     setShowForm(false);
+    setEditingGoal(null);
     await loadGoals();
+  }
+
+  async function handleUpdate(
+    goalId: number,
+    data: { targetOneRm: number; targetDate: string }
+  ) {
+    const res = await fetch(`/api/goal/${goalId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Ошибка сохранения: ${res.status}`);
+    setShowForm(false);
+    setEditingGoal(null);
+    await loadGoals();
+  }
+
+  function handleSubmit(data: {
+    exerciseId: number;
+    targetOneRm: number;
+    targetDate: string;
+  }) {
+    if (editingGoal) {
+      return handleUpdate(editingGoal.id, {
+        targetOneRm: data.targetOneRm,
+        targetDate: data.targetDate,
+      });
+    }
+    return handleCreate(data);
   }
 
   async function handleDelete(id: number) {
@@ -77,18 +114,28 @@ export function GoalPageClient({ initialGoals, initialExercises }: Props) {
       {showForm && (
         <GoalForm
           exercises={exercises}
-          onSubmit={handleCreate}
-          onCancel={() => setShowForm(false)}
+          initialExerciseId={initialExerciseId}
+          initialGoal={
+            editingGoal
+              ? {
+                  id: editingGoal.id,
+                  exerciseId: editingGoal.exerciseId,
+                  targetOneRm: editingGoal.targetOneRm,
+                  targetDate: editingGoal.targetDate,
+                }
+              : undefined
+          }
+          onSubmit={handleSubmit}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingGoal(null);
+          }}
         />
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 rounded-xl border border-white/10 p-3">
-          <span
-            aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-          />
-          <p className="text-white/70">Загружаем цели...</p>
+        <div className="rounded-xl border border-white/10 p-3">
+          <Loader message="Загружаем цели..." />
         </div>
       )}
 
@@ -107,7 +154,15 @@ export function GoalPageClient({ initialGoals, initialExercises }: Props) {
       {goals.length > 0 && (
         <div className="space-y-3">
           {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} onDelete={handleDelete} />
+            <GoalCard
+              key={goal.id}
+              goal={goal}
+              onDelete={handleDelete}
+              onEdit={() => {
+                setEditingGoal(goal);
+                setShowForm(true);
+              }}
+            />
           ))}
         </div>
       )}

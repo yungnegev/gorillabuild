@@ -3,9 +3,10 @@ import type { Goal } from "@gorillabuild/shared/schemas";
 interface Props {
   goal: Goal;
   onDelete: (id: number) => void;
+  onEdit: () => void;
 }
 
-export function GoalCard({ goal, onDelete }: Props) {
+export function GoalCard({ goal, onDelete, onEdit }: Props) {
   const achieved = goal.currentOneRm !== null && goal.currentOneRm >= goal.targetOneRm;
   const progress =
     goal.currentOneRm !== null
@@ -16,12 +17,22 @@ export function GoalCard({ goal, onDelete }: Props) {
     <div className="space-y-3 rounded-xl border border-white/10 p-4">
       <div className="flex items-start justify-between gap-2">
         <p className="font-semibold">{goal.exerciseName}</p>
-        <button
-          onClick={() => onDelete(goal.id)}
-          className="text-xs text-white/40 hover:text-white/70"
-        >
-          Удалить
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-xs text-white/40 hover:text-white/70"
+          >
+            Изменить цель
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(goal.id)}
+            className="text-xs text-white/40 hover:text-white/70"
+          >
+            Удалить
+          </button>
+        </div>
       </div>
 
       {achieved ? (
