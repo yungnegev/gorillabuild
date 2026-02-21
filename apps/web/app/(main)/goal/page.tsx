@@ -1,10 +1,16 @@
-export default function GoalPage() {
-  return (
-    <section className="space-y-3">
-      <h1 className="text-2xl font-bold">Goal</h1>
-      <p className="text-white/75">
-        Здесь будет 1 активная цель: target 1RM, дедлайн и сколько кг осталось до цели.
-      </p>
-    </section>
-  );
+import { auth } from "@clerk/nextjs/server";
+import { getExercises } from "@/lib/exercises";
+import { getActiveGoalsWithProgress } from "@/lib/goals";
+import { GoalPageClient } from "./_components/GoalPageClient";
+
+export default async function GoalPage() {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const [initialGoals, initialExercises] = await Promise.all([
+    getActiveGoalsWithProgress(userId),
+    getExercises(),
+  ]);
+
+  return <GoalPageClient initialGoals={initialGoals} initialExercises={initialExercises} />;
 }

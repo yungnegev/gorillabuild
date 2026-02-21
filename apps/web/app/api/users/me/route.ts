@@ -1,8 +1,9 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export async function GET() {
   const { userId } = await auth();
@@ -17,6 +18,35 @@ export async function GET() {
   return NextResponse.json({
     id: user.id,
     username: user.username,
+    units: user.units,
+    email: clerkUser?.emailAddresses[0]?.emailAddress,
+    name: clerkUser?.fullName,
+    imageUrl: clerkUser?.imageUrl,
+    createdAt: user.createdAt,
+  });
+}
+
+const updateMeSchema = z.object({
+  username: z.string().min(1).optional(),
+  units: z.enum(["kg"]).optional(),
+});
+
+export async function PATCH(req: Request) {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = updateMeSchema.safeParse(await req.json().catch(() => ({})));
+  if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
+
+  await db.update(users).set(body.data).where(eq(users.id, userId));
+
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  const clerkUser = await currentUser();
+
+  return NextResponse.json({
+    id: user.id,
+    username: user.username,
+    units: user.units,
     email: clerkUser?.emailAddresses[0]?.emailAddress,
     name: clerkUser?.fullName,
     imageUrl: clerkUser?.imageUrl,

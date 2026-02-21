@@ -15,6 +15,20 @@
       "when": 1771370700000,
       "tag": "0001_clerk_users",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771631073461,
+      "tag": "0002_purple_reaper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1771700000000,
+      "tag": "0003_silent_metric_lock",
+      "breakpoints": true
     }
   ]
 }
