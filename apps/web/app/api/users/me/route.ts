@@ -38,14 +38,14 @@ export async function PATCH(req: Request) {
   const body = updateMeSchema.safeParse(await req.json().catch(() => ({})));
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const [currentUser] = await db
+  const [existingUser] = await db
     .select({ username: users.username })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
 
   if (body.data.username !== undefined) {
-    if (currentUser?.username != null && currentUser.username !== body.data.username) {
+    if (existingUser?.username != null && existingUser.username !== body.data.username) {
       return NextResponse.json(
         { error: "Ник нельзя изменить после установки" },
         { status: 400 }
