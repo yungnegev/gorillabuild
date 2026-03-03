@@ -1,8 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
-import { workouts } from "@/db/schema";
+import { finishWorkout } from "@/lib/workouts";
 
 /** PATCH /api/workouts/[id] — завершает тренировку */
 export async function PATCH(
@@ -16,10 +14,7 @@ export async function PATCH(
   const workoutId = Number(id);
   if (isNaN(workoutId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  await db
-    .update(workouts)
-    .set({ finishedAt: new Date() })
-    .where(and(eq(workouts.id, workoutId), eq(workouts.userId, userId)));
+  await finishWorkout(userId, workoutId);
 
   return NextResponse.json({ ok: true });
 }

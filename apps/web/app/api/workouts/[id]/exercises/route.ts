@@ -1,9 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
-import { workouts, workoutExercises } from "@/db/schema";
+import { addExerciseToWorkout } from "@/lib/workouts";
 
 const bodySchema = z.object({
   exerciseId: z.number(),
@@ -21,30 +19,11 @@ export async function POST(
   const workoutId = Number(id);
   if (isNaN(workoutId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const [workout] = await db
-    .select()
-    .from(workouts)
-    .where(and(eq(workouts.id, workoutId), eq(workouts.userId, userId)))
-    .limit(1);
-
-  if (!workout) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
   const body = bodySchema.safeParse(await req.json().catch(() => ({})));
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const [{ currentCount }] = await db
-    .select({ currentCount: count() })
-    .from(workoutExercises)
-    .where(eq(workoutExercises.workoutId, workoutId));
-
-  const [we] = await db
-    .insert(workoutExercises)
-    .values({
-      workoutId,
-      exerciseId: body.data.exerciseId,
-      order: currentCount + 1,
-    })
-    .returning();
+  const we = await addExerciseToWorkout(userId, workoutId, body.data.exerciseId);
+  if (!we) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   return NextResponse.json(we, { status: 201 });
 }

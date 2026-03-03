@@ -1,27 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
-import { workoutPlans, planExercises, exercises } from "@/db/schema";
 import { updatePlanSchema } from "@gorillabuild/shared";
-
-async function getPlanWithExercises(planId: number) {
-  const exRows = await db
-    .select({
-      id: planExercises.id,
-      planId: planExercises.planId,
-      exerciseId: planExercises.exerciseId,
-      exerciseName: exercises.name,
-      order: planExercises.order,
-      plannedSetCount: planExercises.plannedSetCount,
-    })
-    .from(planExercises)
-    .innerJoin(exercises, eq(planExercises.exerciseId, exercises.id))
-    .where(eq(planExercises.planId, planId))
-    .orderBy(planExercises.order);
-
-  return exRows;
-}
+import { getPlan, updatePlan, deletePlan } from "@/lib/plans";
 
 /** GET /api/plans/[id] */
 export async function GET(
@@ -34,21 +14,10 @@ export async function GET(
   const planId = Number((await params).id);
   if (isNaN(planId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const [plan] = await db
-    .select()
-    .from(workoutPlans)
-    .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)))
-    .limit(1);
-
+  const plan = await getPlan(planId, userId);
   if (!plan) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const exRows = await getPlanWithExercises(planId);
-
-  return NextResponse.json({
-    ...plan,
-    updatedAt: plan.updatedAt.toISOString(),
-    exercises: exRows,
-  });
+  return NextResponse.json(plan);
 }
 
 /** PATCH /api/plans/[id] — обновляет имя и/или упражнения */
@@ -62,49 +31,13 @@ export async function PATCH(
   const planId = Number((await params).id);
   if (isNaN(planId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const [plan] = await db
-    .select()
-    .from(workoutPlans)
-    .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)))
-    .limit(1);
-
-  if (!plan) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
   const body = updatePlanSchema.safeParse(await req.json().catch(() => ({})));
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const now = new Date();
+  const updated = await updatePlan(userId, planId, body.data);
+  if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  if (body.data.name) {
-    await db
-      .update(workoutPlans)
-      .set({ name: body.data.name, updatedAt: now })
-      .where(eq(workoutPlans.id, planId));
-  }
-
-  if (body.data.exercises) {
-    await db.delete(planExercises).where(eq(planExercises.planId, planId));
-    if (body.data.exercises.length > 0) {
-      await db.insert(planExercises).values(
-        body.data.exercises.map((e) => ({
-          planId,
-          exerciseId: e.exerciseId,
-          order: e.order,
-          plannedSetCount: e.plannedSetCount ?? null,
-        }))
-      );
-    }
-    await db.update(workoutPlans).set({ updatedAt: now }).where(eq(workoutPlans.id, planId));
-  }
-
-  const [updated] = await db.select().from(workoutPlans).where(eq(workoutPlans.id, planId));
-  const exRows = await getPlanWithExercises(planId);
-
-  return NextResponse.json({
-    ...updated,
-    updatedAt: updated.updatedAt.toISOString(),
-    exercises: exRows,
-  });
+  return NextResponse.json(updated);
 }
 
 /** DELETE /api/plans/[id] — удаление плана (сначала plan_exercises, затем план) */
@@ -118,15 +51,8 @@ export async function DELETE(
   const planId = Number((await params).id);
   if (isNaN(planId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const [plan] = await db
-    .select()
-    .from(workoutPlans)
-    .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)))
-    .limit(1);
-  if (!plan) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-  await db.delete(planExercises).where(eq(planExercises.planId, planId));
-  await db.delete(workoutPlans).where(eq(workoutPlans.id, planId));
+  const deleted = await deletePlan(userId, planId);
+  if (!deleted) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   return NextResponse.json({ ok: true });
 }

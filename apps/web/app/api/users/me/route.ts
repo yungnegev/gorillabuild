@@ -1,28 +1,25 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { and, eq, ne } from "drizzle-orm";
 import { z } from "zod";
-import { db } from "@/db";
-import { users } from "@/db/schema";
+import { ensureUser, getUser, updateUser } from "@/lib/users";
 
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Lazy-create the user row if webhook hasn't fired yet
-  await db.insert(users).values({ id: userId }).onConflictDoNothing();
+  await ensureUser(userId);
 
-  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  const user = await getUser(userId);
   const clerkUser = await currentUser();
 
   return NextResponse.json({
-    id: user.id,
-    username: user.username,
-    units: user.units,
+    id: user!.id,
+    username: user!.username,
+    units: user!.units,
     email: clerkUser?.emailAddresses[0]?.emailAddress,
     name: clerkUser?.fullName,
     imageUrl: clerkUser?.imageUrl,
-    createdAt: user.createdAt,
+    createdAt: user!.createdAt,
   });
 }
 
@@ -38,44 +35,21 @@ export async function PATCH(req: Request) {
   const body = updateMeSchema.safeParse(await req.json().catch(() => ({})));
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const [existingUser] = await db
-    .select({ username: users.username })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1);
+  const result = await updateUser(userId, body.data);
 
-  if (body.data.username !== undefined) {
-    if (existingUser?.username != null && existingUser.username !== body.data.username) {
-      return NextResponse.json(
-        { error: "Ник нельзя изменить после установки" },
-        { status: 400 }
-      );
-    }
-    const [existing] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(and(eq(users.username, body.data.username), ne(users.id, userId)))
-      .limit(1);
-    if (existing) {
-      return NextResponse.json(
-        { error: "Username already taken" },
-        { status: 409 }
-      );
-    }
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
-  await db.update(users).set(body.data).where(eq(users.id, userId));
-
-  const [user] = await db.select().from(users).where(eq(users.id, userId));
   const clerkUser = await currentUser();
 
   return NextResponse.json({
-    id: user.id,
-    username: user.username,
-    units: user.units,
+    id: result.user.id,
+    username: result.user.username,
+    units: result.user.units,
     email: clerkUser?.emailAddresses[0]?.emailAddress,
     name: clerkUser?.fullName,
     imageUrl: clerkUser?.imageUrl,
-    createdAt: user.createdAt,
+    createdAt: result.user.createdAt,
   });
 }

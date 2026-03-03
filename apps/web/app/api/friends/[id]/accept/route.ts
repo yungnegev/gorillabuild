@@ -1,8 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
-import { friendships } from "@/db/schema";
+import { acceptFriendRequest } from "@/lib/friends";
 
 /** PATCH /api/friends/[id]/accept — принимает заявку дружбы */
 export async function PATCH(
@@ -15,20 +13,8 @@ export async function PATCH(
   const friendshipId = Number((await params).id);
   if (isNaN(friendshipId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  const [row] = await db
-    .select()
-    .from(friendships)
-    .where(
-      and(eq(friendships.id, friendshipId), eq(friendships.toUserId, userId))
-    )
-    .limit(1);
-
-  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-  await db
-    .update(friendships)
-    .set({ status: "accepted" })
-    .where(eq(friendships.id, friendshipId));
+  const accepted = await acceptFriendRequest(userId, friendshipId);
+  if (!accepted) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   return NextResponse.json({ ok: true });
 }

@@ -83,3 +83,111 @@ export async function getPlan(
     exercises: exRows,
   };
 }
+
+/** Входные данные для создания/обновления упражнений в плане */
+type PlanExerciseInput = {
+  exerciseId: number;
+  order: number;
+  plannedSetCount?: number | null;
+};
+
+/** Создаёт план с упражнениями. Возвращает план с упражнениями. */
+export async function createPlan(
+  userId: string,
+  data: { name: string; exercises: PlanExerciseInput[] }
+): Promise<PlanWithExercises> {
+  const [plan] = await db
+    .insert(workoutPlans)
+    .values({ userId, name: data.name })
+    .returning();
+
+  if (data.exercises.length > 0) {
+    await db.insert(planExercises).values(
+      data.exercises.map((e) => ({
+        planId: plan.id,
+        exerciseId: e.exerciseId,
+        order: e.order,
+        plannedSetCount: e.plannedSetCount ?? null,
+      }))
+    );
+  }
+
+  const exRows = await db
+    .select({
+      id: planExercises.id,
+      planId: planExercises.planId,
+      exerciseId: planExercises.exerciseId,
+      exerciseName: exercises.name,
+      order: planExercises.order,
+      plannedSetCount: planExercises.plannedSetCount,
+    })
+    .from(planExercises)
+    .innerJoin(exercises, eq(planExercises.exerciseId, exercises.id))
+    .where(eq(planExercises.planId, plan.id))
+    .orderBy(planExercises.order);
+
+  return {
+    id: plan.id,
+    userId: plan.userId,
+    name: plan.name,
+    updatedAt: plan.updatedAt.toISOString(),
+    exercises: exRows,
+  };
+}
+
+/** Обновляет имя и/или упражнения плана. Возвращает null, если план не найден. */
+export async function updatePlan(
+  userId: string,
+  planId: number,
+  data: { name?: string; exercises?: PlanExerciseInput[] }
+): Promise<PlanWithExercises | null> {
+  const [plan] = await db
+    .select()
+    .from(workoutPlans)
+    .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)))
+    .limit(1);
+
+  if (!plan) return null;
+
+  const now = new Date();
+
+  if (data.name) {
+    await db
+      .update(workoutPlans)
+      .set({ name: data.name, updatedAt: now })
+      .where(eq(workoutPlans.id, planId));
+  }
+
+  if (data.exercises) {
+    await db.delete(planExercises).where(eq(planExercises.planId, planId));
+    if (data.exercises.length > 0) {
+      await db.insert(planExercises).values(
+        data.exercises.map((e) => ({
+          planId,
+          exerciseId: e.exerciseId,
+          order: e.order,
+          plannedSetCount: e.plannedSetCount ?? null,
+        }))
+      );
+    }
+    await db.update(workoutPlans).set({ updatedAt: now }).where(eq(workoutPlans.id, planId));
+  }
+
+  return getPlan(planId, userId);
+}
+
+/** Удаляет план и его упражнения. Возвращает false, если план не найден. */
+export async function deletePlan(userId: string, planId: number): Promise<boolean> {
+  const [plan] = await db
+    .select()
+    .from(workoutPlans)
+    .where(and(eq(workoutPlans.id, planId), eq(workoutPlans.userId, userId)))
+    .limit(1);
+
+  if (!plan) return false;
+
+  await db.delete(planExercises).where(eq(planExercises.planId, planId));
+  await db.delete(workoutPlans).where(eq(workoutPlans.id, planId));
+
+  return true;
+}
