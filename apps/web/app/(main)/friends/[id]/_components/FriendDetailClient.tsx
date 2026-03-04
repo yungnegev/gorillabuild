@@ -3,6 +3,7 @@
 import type { Comparison } from "@gorillabuild/shared/schemas";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import {
   CartesianGrid,
@@ -23,12 +24,6 @@ type Props = {
   friend: FriendDetail;
   initialExercises: FriendExerciseSummary[];
 };
-
-const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
 
 function getBodyWeightOnOrBefore(
   entries: { date: string; weightKg: number }[],
@@ -52,6 +47,21 @@ function ComparisonChart({
   myLabel: string;
   friendLabel: string;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("friends.detail");
+  const tCommon = useTranslations("common");
+  const unit = tCommon("units.kg");
+
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        day: "2-digit",
+        month: "short",
+        timeZone: "UTC",
+      }),
+    [locale],
+  );
+
   const chartData = useMemo(() => {
     const myBodyWeights = data.mine.bodyWeights ?? [];
     const friendBodyWeights = data.friend.bodyWeights ?? [];
@@ -82,7 +92,7 @@ function ComparisonChart({
       }),
     );
 
-    const allDates = [...new Set([...myMap.keys(), ...friendMap.keys()])].sort();
+    const allDates = [...new Set([ ...myMap.keys(), ...friendMap.keys() ])].sort();
     return allDates.map((date) => ({
       date,
       dateTime: new Date(date).getTime(),
@@ -98,7 +108,7 @@ function ComparisonChart({
   if (isEmpty) {
     return (
       <p className="py-4 text-center text-sm text-white/50">
-        Нет данных для сравнения — у кого-то ещё не было тренировок с этим упражнением
+        {t("noComparisonData")}
       </p>
     );
   }
@@ -108,12 +118,13 @@ function ComparisonChart({
   if (mode === "ratio" && !hasAnyRatio) {
     return (
       <p className="py-4 text-center text-sm text-white/50">
-        Нет записей массы тела — добавь вес в профиле, чтобы видеть относительную силу
+        {t("noBodyWeightData")}
       </p>
     );
   }
 
-  const activeDataKey = mode === "ratio" ? { mine: "myRatio", friend: "friendRatio" } : { mine: "mine", friend: "friend" };
+  const activeDataKey =
+    mode === "ratio" ? { mine: "myRatio", friend: "friendRatio" } : { mine: "mine", friend: "friend" };
 
   return (
     <div className="space-y-3">
@@ -136,7 +147,7 @@ function ComparisonChart({
               dataKey="dateTime"
               type="number"
               scale="time"
-              domain={["dataMin", "dataMax"]}
+              domain={[ "dataMin", "dataMax" ]}
               tickLine={false}
               axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
               tickMargin={8}
@@ -145,14 +156,14 @@ function ComparisonChart({
             />
             <YAxis
               type="number"
-              domain={["auto", "auto"]}
+              domain={[ "auto", "auto" ]}
               tickCount={4}
               width={36}
               tickLine={false}
               axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
               tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 8 }}
               tickFormatter={(v: number) =>
-                mode === "ratio" ? v.toFixed(2) : `${v} кг`
+                mode === "ratio" ? v.toFixed(2) : `${v} ${unit}`
               }
             />
             <Tooltip
@@ -165,9 +176,9 @@ function ComparisonChart({
               }}
               formatter={(value, name) => {
                 const label = name === activeDataKey.mine ? myLabel : friendLabel;
-                if (typeof value !== "number") return ["—", label];
+                if (typeof value !== "number") return [ "—", label ];
                 return [
-                  mode === "ratio" ? value.toFixed(3) : `${value} кг`,
+                  mode === "ratio" ? value.toFixed(3) : `${value} ${unit}`,
                   label,
                 ];
               }}
@@ -211,6 +222,10 @@ function ExerciseRow({
   myLabel: string;
   friendLabel: string;
 }) {
+  const t = useTranslations("friends.detail");
+  const tCommon = useTranslations("common");
+  const unit = tCommon("units.kg");
+
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [comparison, setComparison] = useState<Comparison | null>(null);
@@ -231,12 +246,12 @@ function ExerciseRow({
     setError(null);
     try {
       const res = await fetch(`/api/friends/${friendshipId}/exercises/${exercise.id}`);
-      if (!res.ok) throw new Error("Не удалось загрузить данные");
+      if (!res.ok) throw new Error(t("loadDataFailed"));
       const data: Comparison = await res.json();
       setComparison(data);
       setExpanded(true);
     } catch {
-      setError("Не удалось загрузить данные сравнения");
+      setError(t("loadComparisonFailed"));
     } finally {
       setLoading(false);
     }
@@ -253,15 +268,15 @@ function ExerciseRow({
         <div className="flex shrink-0 items-center gap-4">
           <div className="hidden gap-4 sm:flex">
             <span className="text-sm text-white/70">
-              Я:{" "}
+              {t("mineShort")}: {" "}
               <span className="text-white">
-                {exercise.myBestOneRm != null ? `${exercise.myBestOneRm} кг` : "—"}
+                {exercise.myBestOneRm != null ? `${exercise.myBestOneRm} ${unit}` : "—"}
               </span>
             </span>
             <span className="text-sm text-lime-400">
-              Друг:{" "}
+              {t("friendShort")}: {" "}
               <span className="text-lime-300">
-                {exercise.friendBestOneRm != null ? `${exercise.friendBestOneRm} кг` : "—"}
+                {exercise.friendBestOneRm != null ? `${exercise.friendBestOneRm} ${unit}` : "—"}
               </span>
             </span>
           </div>
@@ -269,25 +284,24 @@ function ExerciseRow({
         </div>
       </button>
 
-      {/* mobile best 1RM */}
       <div className="flex gap-4 px-4 pb-3 sm:hidden text-sm">
         <span className="text-white/70">
-          Я:{" "}
+          {t("mineShort")}: {" "}
           <span className="text-white">
-            {exercise.myBestOneRm != null ? `${exercise.myBestOneRm} кг` : "—"}
+            {exercise.myBestOneRm != null ? `${exercise.myBestOneRm} ${unit}` : "—"}
           </span>
         </span>
         <span className="text-lime-400">
-          Друг:{" "}
+          {t("friendShort")}: {" "}
           <span className="text-lime-300">
-            {exercise.friendBestOneRm != null ? `${exercise.friendBestOneRm} кг` : "—"}
+            {exercise.friendBestOneRm != null ? `${exercise.friendBestOneRm} ${unit}` : "—"}
           </span>
         </span>
       </div>
 
       {loading && (
         <div className="px-4 pb-4">
-          <Loader message="Загрузка…" className="flex items-center gap-2 text-sm" />
+          <Loader message={t("loading")} className="flex items-center gap-2 text-sm" />
         </div>
       )}
 
@@ -310,13 +324,14 @@ function ExerciseRow({
 }
 
 export function FriendDetailClient({ friend, initialExercises }: Props) {
+  const t = useTranslations("friends.detail");
   const router = useRouter();
   const [mode, setMode] = useState<ChartMode>("absolute");
 
   const [friendImageError, setFriendImageError] = useState(false);
   const displayName = friend.name || friend.username || friend.userId;
-  const myLabel = "Вы";
-  const friendLabel = friend.username ? `@${friend.username}` : (friend.name ?? "Друг");
+  const myLabel = t("meLabel");
+  const friendLabel = friend.username ? `@${friend.username}` : (friend.name ?? t("friendFallback"));
   const showFriendImage = friend.imageUrl && !friendImageError;
 
   return (
@@ -327,33 +342,31 @@ export function FriendDetailClient({ friend, initialExercises }: Props) {
             type="button"
             onClick={() => router.back()}
             className="cursor-pointer text-white/60 hover:text-white"
-            aria-label="Назад"
+            aria-label={t("backAria")}
           >
             ←
           </button>
-          <h1 className="text-xl font-bold">Сравнение</h1>
+          <h1 className="text-xl font-bold">{t("title")}</h1>
         </div>
 
-        {/* Режим графика */}
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => setMode("absolute")}
             className={`cursor-pointer rounded px-2 py-1 text-sm ${mode === "absolute" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"}`}
           >
-            absolute
+            {t("modeAbsolute")}
           </button>
           <button
             type="button"
             onClick={() => setMode("ratio")}
             className={`cursor-pointer rounded px-2 py-1 text-sm ${mode === "ratio" ? "bg-white/20 text-white" : "text-white/50 hover:text-white"}`}
           >
-            ratio
+            {t("modeRatio")}
           </button>
         </div>
       </div>
 
-      {/* Friend profile */}
       <div className="flex items-center gap-4 rounded-xl border border-white/10 p-4">
         {showFriendImage ? (
           <Image
@@ -375,15 +388,14 @@ export function FriendDetailClient({ friend, initialExercises }: Props) {
         </div>
       </div>
 
-      {/* Exercise comparison list */}
       <div className="space-y-2">
-        <h2 className="text-sm font-medium text-white/60">Упражнения</h2>
+        <h2 className="text-sm font-medium text-white/60">{t("exercisesTitle")}</h2>
 
         {initialExercises.length === 0 ? (
           <div className="rounded-xl border border-white/10 p-6 text-center">
-            <p className="text-white/50">Нет данных для сравнения</p>
+            <p className="text-white/50">{t("emptyExercisesTitle")}</p>
             <p className="mt-1 text-sm text-white/40">
-              Нужно завершить хотя бы одну тренировку с упражнениями
+              {t("emptyExercisesDescription")}
             </p>
           </div>
         ) : (

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import type { FriendItem, FriendRequestItem } from "@/lib/friends";
 import { AddFriendForm } from "./AddFriendForm";
@@ -15,6 +16,7 @@ interface Props {
 
 export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
   const router = useRouter();
+  const t = useTranslations("friends.page");
   const [showAddForm, setShowAddForm] = useState(false);
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const [acceptingId, setAcceptingId] = useState<number | null>(null);
@@ -30,7 +32,7 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
       const message =
         typeof data.error === "string"
           ? data.error
-          : data.error?.message ?? "Не удалось отправить заявку";
+          : data.error?.message ?? t("sendRequestFailed");
       throw new Error(message);
     }
     setShowAddForm(false);
@@ -47,13 +49,13 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
         const message =
           typeof data.error === "string"
             ? data.error
-            : data.error?.message ?? "Не удалось принять заявку";
+            : data.error?.message ?? t("acceptRequestFailed");
         setAcceptError(message);
         return;
       }
       router.refresh();
     } catch {
-      setAcceptError("Не удалось принять заявку");
+      setAcceptError(t("acceptRequestFailed"));
     } finally {
       setAcceptingId(null);
     }
@@ -62,14 +64,14 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Друзья</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         {!showAddForm && (
           <button
             type="button"
             onClick={() => setShowAddForm(true)}
             className="rounded-md border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10"
           >
-            Добавить друга
+            {t("addFriend")}
           </button>
         )}
       </div>
@@ -83,7 +85,7 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
 
       {initialRequests.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-sm font-medium text-white/70">Входящие заявки</h2>
+          <h2 className="text-sm font-medium text-white/70">{t("incomingRequests")}</h2>
           {acceptError && (
             <p className="text-sm text-red-400" role="alert">
               {acceptError}
@@ -105,9 +107,9 @@ export function FriendsPageClient({ initialFriends, initialRequests }: Props) {
       <div className="space-y-2">
         {initialFriends.length === 0 && initialRequests.length === 0 && !showAddForm && (
           <div className="rounded-xl border border-white/10 p-6 text-center">
-            <p className="text-white/50">Друзей пока нет</p>
+            <p className="text-white/50">{t("emptyTitle")}</p>
             <p className="mt-2 text-sm text-white/40">
-              Нажмите «Добавить друга» и введите handle пользователя, чтобы отправить заявку.
+              {t("emptyDescription")}
             </p>
           </div>
         )}

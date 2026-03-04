@@ -11,6 +11,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
+    "i18n:validate": "turbo run i18n:validate",
     "checks": "bun scripts/checks.js",
     "db:generate": "turbo run db:generate --filter=@gorillabuild/web",
     "db:migrate": "turbo run db:migrate --filter=@gorillabuild/web",

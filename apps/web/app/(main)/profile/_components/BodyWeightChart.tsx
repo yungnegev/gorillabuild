@@ -1,6 +1,7 @@
 "use client";
 
 import type { BodyWeightEntry } from "@gorillabuild/shared/schemas";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import {
   CartesianGrid,
@@ -21,28 +22,37 @@ function parseIsoDateToUtcTime(date: string): number {
   return Date.UTC(year, month - 1, day);
 }
 
-const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
-const monthFormatter = new Intl.DateTimeFormat("ru-RU", {
-  month: "short",
-  year: "2-digit",
-  timeZone: "UTC",
-});
-const fullDateFormatter = new Intl.DateTimeFormat("ru-RU", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
 export function BodyWeightChart({ entries }: Props) {
+  const locale = useLocale();
+  const t = useTranslations("profile.chart");
+  const tCommon = useTranslations("common");
+  const unit = tCommon("units.kg");
+
+  const formatters = useMemo(() => {
+    return {
+      date: new Intl.DateTimeFormat(locale, {
+        day: "2-digit",
+        month: "short",
+        timeZone: "UTC",
+      }),
+      month: new Intl.DateTimeFormat(locale, {
+        month: "short",
+        year: "2-digit",
+        timeZone: "UTC",
+      }),
+      fullDate: new Intl.DateTimeFormat(locale, {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        timeZone: "UTC",
+      }),
+    };
+  }, [locale]);
+
   const chartModel = useMemo(() => {
     if (entries.length < 2) return null;
 
-    const sorted = [...entries].sort((a, b) => {
+    const sorted = [ ...entries ].sort((a, b) => {
       const dateCompare = a.date.localeCompare(b.date);
       if (dateCompare !== 0) return dateCompare;
       return a.id - b.id;
@@ -100,19 +110,23 @@ export function BodyWeightChart({ entries }: Props) {
       xTicks: dayTimeRange === 0
         ? [minDayTime]
         : [minDayTime, minDayTime + dayTimeRange / 2, maxDayTime],
-      xLabelFormatter: daysRange > 120 ? monthFormatter : dateFormatter,
-      tooltipDateFormatter: fullDateFormatter,
+      xLabelFormatter: daysRange > 120 ? formatters.month : formatters.date,
+      tooltipDateFormatter: formatters.fullDate,
     };
-  }, [entries]);
+  }, [entries, formatters]);
 
   if (!chartModel) return null;
 
   return (
     <div className="space-y-3 rounded-xl border border-white/10 p-4">
       <div className="flex items-center justify-between text-sm">
-        <p className="font-medium">Динамика веса</p>
+        <p className="font-medium">{t("title")}</p>
         <p className="text-white/60">
-          {chartModel.minWeight.toFixed(1)}-{chartModel.maxWeight.toFixed(1)} кг
+          {t("range", {
+            min: chartModel.minWeight.toFixed(1),
+            max: chartModel.maxWeight.toFixed(1),
+            unit,
+          })}
         </p>
       </div>
 
@@ -127,7 +141,7 @@ export function BodyWeightChart({ entries }: Props) {
               dataKey="time"
               type="number"
               scale="time"
-              domain={["dataMin", "dataMax"]}
+              domain={[ "dataMin", "dataMax" ]}
               ticks={chartModel.xTicks}
               tickLine={false}
               axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
@@ -155,7 +169,9 @@ export function BodyWeightChart({ entries }: Props) {
               }}
               formatter={(value) => {
                 const numeric = typeof value === "number" ? value : Number(value);
-                return Number.isFinite(numeric) ? [`${numeric.toFixed(1)} кг`, "Вес"] : [String(value), "Вес"];
+                return Number.isFinite(numeric)
+                  ? [`${numeric.toFixed(1)} ${unit}`, t("tooltipWeight")]
+                  : [String(value), t("tooltipWeight")];
               }}
               labelFormatter={(value) => {
                 const numeric = typeof value === "number" ? value : Number(value);

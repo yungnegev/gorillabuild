@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Exercise } from "@gorillabuild/shared/schemas";
 
 interface FormData {
@@ -31,6 +32,8 @@ export function GoalForm({
   onSubmit,
   onCancel,
 }: Props) {
+  const t = useTranslations("goals.form");
+  const tCommon = useTranslations("common");
   const [exerciseId, setExerciseId] = useState<number | "">(
     initialGoal?.exerciseId ?? initialExerciseId ?? ""
   );
@@ -49,7 +52,7 @@ export function GoalForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (exerciseId === "" || !targetOneRm || !targetDate) {
-      setError("Заполни все поля");
+      setError(t("fillAllFields"));
       return;
     }
 
@@ -59,7 +62,7 @@ export function GoalForm({
     try {
       await onSubmit({ exerciseId: Number(exerciseId), targetOneRm, targetDate });
     } catch {
-      setError("Ошибка сохранения. Попробуй ещё раз.");
+      setError(t("saveFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -67,13 +70,13 @@ export function GoalForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-white/10 p-4">
-      <p className="font-medium">{isEdit ? "Изменить цель" : "Новая цель"}</p>
+      <p className="font-medium">{isEdit ? t("editTitle") : t("newTitle")}</p>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       <div className="space-y-1">
         <label htmlFor="exerciseId" className="text-sm text-white/70">
-          Упражнение
+          {t("exerciseLabel")}
         </label>
         <select
           id="exerciseId"
@@ -82,7 +85,7 @@ export function GoalForm({
           onChange={(e) => setExerciseId(e.target.value ? Number(e.target.value) : "")}
           disabled={isEdit}
         >
-          <option value="">Выберите упражнение</option>
+          <option value="">{t("exercisePlaceholder")}</option>
           {exercises.map((ex) => (
             <option key={ex.id} value={ex.id}>
               {ex.name}
@@ -93,7 +96,7 @@ export function GoalForm({
 
       <div className="space-y-1">
         <label htmlFor="targetOneRm" className="text-sm text-white/70">
-          Целевой 1ПМ (кг)
+          {t("targetOneRmLabel", { unit: tCommon("units.kg") })}
         </label>
         <input
           id="targetOneRm"
@@ -109,7 +112,7 @@ export function GoalForm({
 
       <div className="space-y-1">
         <label htmlFor="targetDate" className="text-sm text-white/70">
-          Дедлайн
+          {t("deadlineLabel")}
         </label>
         <input
           id="targetDate"
@@ -127,14 +130,14 @@ export function GoalForm({
           disabled={submitting}
           className="rounded-md border border-white/20 px-3 py-2 hover:bg-white/10 disabled:opacity-50"
         >
-          {submitting ? "Сохраняем..." : "Сохранить"}
+          {submitting ? t("saving") : t("save")}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-md px-3 py-2 text-white/50 hover:text-white/80"
         >
-          Отмена
+          {t("cancel")}
         </button>
       </div>
     </form>

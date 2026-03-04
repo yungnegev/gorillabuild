@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import type { PlanWithExercises, PlanExerciseItem } from "@/lib/plans";
 import type { Exercise } from "@gorillabuild/shared/schemas";
 
@@ -29,6 +30,7 @@ function toEditItems(exercises: PlanExerciseItem[]): EditItem[] {
 
 export function PlanDetailClient({ plan, allExercises }: Props) {
   const router = useRouter();
+  const t = useTranslations("plans.detail");
   const [name, setName] = useState(plan.name);
   const [items, setItems] = useState<EditItem[]>(() => toEditItems(plan.exercises));
   const [saving, setSaving] = useState(false);
@@ -59,11 +61,13 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error?.message ?? `Ошибка ${res.status}`);
+        throw new Error(
+          data?.error?.message ?? t("saveErrorStatus", { status: res.status }),
+        );
       }
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось сохранить");
+      setError(e instanceof Error ? e.message : t("saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -97,11 +101,13 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
       const res = await fetch(`/api/plans/${plan.id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error ?? `Ошибка ${res.status}`);
+        throw new Error(
+          data?.error ?? t("deleteErrorStatus", { status: res.status }),
+        );
       }
       router.push("/plans");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось удалить план");
+      setError(e instanceof Error ? e.message : t("deleteFailed"));
       setDeleting(false);
     }
   }
@@ -113,7 +119,7 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
           <Link
             href="/plans"
             className="text-white/60 hover:text-white"
-            aria-label="Назад к списку планов"
+            aria-label={t("backAria")}
           >
             ←
           </Link>
@@ -131,13 +137,13 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
             disabled={saving}
             className="rounded-md border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10 disabled:opacity-50"
           >
-            {saving ? "Сохранение…" : "Сохранить"}
+            {saving ? t("saving") : t("save")}
           </button>
           <Link
             href={`/workout/active?planId=${plan.id}`}
             className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
           >
-            Start plan
+            {t("startPlan")}
           </Link>
         </div>
       </div>
@@ -147,10 +153,10 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
       )}
 
       <div>
-        <h2 className="mb-2 text-sm font-medium text-white/60">Упражнения</h2>
+        <h2 className="mb-2 text-sm font-medium text-white/60">{t("exercisesTitle")}</h2>
         {items.length === 0 ? (
           <p className="rounded-xl border border-white/10 p-4 text-white/50">
-            В плане пока нет упражнений. Добавьте из списка ниже.
+            {t("emptyExercises")}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -166,7 +172,7 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
                   {item.exerciseName}
                 </Link>
                 <label className="flex items-center gap-1.5 text-sm text-white/70">
-                  Подходов:
+                  {t("setsLabel")}
                   <input
                     type="number"
                     min={1}
@@ -183,7 +189,7 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
                   type="button"
                   onClick={() => removeAt(index)}
                   className="rounded px-2 py-1 text-sm text-red-400 hover:bg-white/10"
-                  aria-label="Удалить упражнение"
+                  aria-label={t("removeExerciseAria")}
                 >
                   ✕
                 </button>
@@ -194,7 +200,7 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
 
         {availableToAdd.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <label className="text-sm text-white/60">Добавить:</label>
+            <label className="text-sm text-white/60">{t("addLabel")}</label>
             <select
               value=""
               onChange={(e) => {
@@ -204,7 +210,7 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
               }}
               className="rounded-md border border-white/20 bg-white/5 px-3 py-1.5 text-sm focus:border-white/40 focus:outline-none"
             >
-              <option value="">— выбрать —</option>
+              <option value="">{t("selectPlaceholder")}</option>
               {availableToAdd.map((ex) => (
                 <option key={ex.id} value={ex.id}>
                   {ex.name}
@@ -222,18 +228,18 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
             onClick={() => setConfirmDelete(true)}
             className="text-sm text-white/50 hover:text-red-400"
           >
-            Удалить план
+            {t("deletePlan")}
           </button>
         ) : (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-white/60">Удалить план безвозвратно?</span>
+            <span className="text-sm text-white/60">{t("deleteConfirm")}</span>
             <button
               type="button"
               onClick={handleDelete}
               disabled={deleting}
               className="rounded-md border border-red-500/50 px-3 py-1.5 text-sm text-red-400 hover:bg-red-500/10 disabled:opacity-50"
             >
-              {deleting ? "Удаляем…" : "Да, удалить"}
+              {deleting ? t("deleting") : t("confirmDelete")}
             </button>
             <button
               type="button"
@@ -241,7 +247,7 @@ export function PlanDetailClient({ plan, allExercises }: Props) {
               disabled={deleting}
               className="text-sm text-white/60 hover:text-white disabled:opacity-50"
             >
-              Отмена
+              {t("cancel")}
             </button>
           </div>
         )}

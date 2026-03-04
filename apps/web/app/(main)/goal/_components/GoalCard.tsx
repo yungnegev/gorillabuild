@@ -1,3 +1,6 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 import type { Goal } from "@gorillabuild/shared/schemas";
 
 interface Props {
@@ -7,6 +10,10 @@ interface Props {
 }
 
 export function GoalCard({ goal, onDelete, onEdit }: Props) {
+  const t = useTranslations("goals.card");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const unit = tCommon("units.kg");
   const achieved = goal.currentOneRm !== null && goal.currentOneRm >= goal.targetOneRm;
   const progress =
     goal.currentOneRm !== null
@@ -19,29 +26,29 @@ export function GoalCard({ goal, onDelete, onEdit }: Props) {
         <p className="font-semibold">{goal.exerciseName}</p>
         <div className="flex gap-2">
           <button
-            type="button"
-            onClick={onEdit}
-            className="text-xs text-white/40 hover:text-white/70"
-          >
-            Изменить цель
+          type="button"
+          onClick={onEdit}
+          className="text-xs text-white/40 hover:text-white/70"
+        >
+            {t("editGoal")}
           </button>
           <button
-            type="button"
-            onClick={() => onDelete(goal.id)}
-            className="text-xs text-white/40 hover:text-white/70"
-          >
-            Удалить
+          type="button"
+          onClick={() => onDelete(goal.id)}
+          className="text-xs text-white/40 hover:text-white/70"
+        >
+            {t("deleteGoal")}
           </button>
         </div>
       </div>
 
       {achieved ? (
-        <p className="font-medium text-green-400">✓ Достигнуто!</p>
+        <p className="font-medium text-green-400">{t("achieved")}</p>
       ) : (
         <p className="text-sm text-white/70">
-          Осталось:{" "}
+          {t("remaining")}{" "}
           <span className="font-medium text-white">
-            {goal.remainingKg !== null ? `${goal.remainingKg.toFixed(1)} кг` : "нет данных"}
+            {goal.remainingKg !== null ? `${goal.remainingKg.toFixed(1)} ${unit}` : t("noData")}
           </span>
         </p>
       )}
@@ -55,16 +62,16 @@ export function GoalCard({ goal, onDelete, onEdit }: Props) {
 
       <div className="grid grid-cols-3 gap-2 text-sm">
         <div>
-          <p className="text-white/50">Текущий</p>
-          <p>{goal.currentOneRm !== null ? `${goal.currentOneRm.toFixed(1)} кг` : "—"}</p>
+          <p className="text-white/50">{t("current")}</p>
+          <p>{goal.currentOneRm !== null ? `${goal.currentOneRm.toFixed(1)} ${unit}` : "—"}</p>
         </div>
         <div>
-          <p className="text-white/50">Цель</p>
-          <p>{goal.targetOneRm} кг</p>
+          <p className="text-white/50">{t("target")}</p>
+          <p>{goal.targetOneRm} {unit}</p>
         </div>
         <div>
-          <p className="text-white/50">Дедлайн</p>
-          <p>{new Date(goal.targetDate).toLocaleDateString("ru-RU")}</p>
+          <p className="text-white/50">{t("deadline")}</p>
+          <p>{new Date(goal.targetDate).toLocaleDateString(locale)}</p>
         </div>
       </div>
     </div>

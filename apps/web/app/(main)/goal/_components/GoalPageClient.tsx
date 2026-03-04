@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Exercise, Goal } from "@gorillabuild/shared/schemas";
 import { Loader } from "@/app/_components/Loader";
 import { GoalCard } from "./GoalCard";
@@ -17,6 +18,7 @@ export function GoalPageClient({
   initialExercises,
   initialExerciseId,
 }: Props) {
+  const t = useTranslations("goals.page");
   const [goals, setGoals] = useState<Goal[]>(initialGoals);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,10 +31,10 @@ export function GoalPageClient({
       setLoading(true);
       setError(null);
       const res = await fetch("/api/goal", { cache: "no-store" });
-      if (!res.ok) throw new Error(`Ошибка загрузки: ${res.status}`);
+      if (!res.ok) throw new Error(t("loadErrorStatus", { status: res.status }));
       setGoals((await res.json()) as Goal[]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Неизвестная ошибка");
+      setError(err instanceof Error ? err.message : t("unknownError"));
     } finally {
       setLoading(false);
     }
@@ -48,7 +50,7 @@ export function GoalPageClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error(`Ошибка сохранения: ${res.status}`);
+    if (!res.ok) throw new Error(t("saveErrorStatus", { status: res.status }));
     setShowForm(false);
     setEditingGoal(null);
     await loadGoals();
@@ -63,7 +65,7 @@ export function GoalPageClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error(`Ошибка сохранения: ${res.status}`);
+    if (!res.ok) throw new Error(t("saveErrorStatus", { status: res.status }));
     setShowForm(false);
     setEditingGoal(null);
     await loadGoals();
@@ -91,20 +93,20 @@ export function GoalPageClient({
       if (!res.ok) throw new Error();
     } catch {
       setGoals(snapshot);
-      setError("Не удалось удалить цель");
+      setError(t("deleteFailed"));
     }
   }
 
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Цели</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
             className="rounded-md border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10"
           >
-            + Добавить цель
+            {t("addGoal")}
           </button>
         )}
       </div>
@@ -135,18 +137,18 @@ export function GoalPageClient({
 
       {loading && (
         <div className="rounded-xl border border-white/10 p-3">
-          <Loader message="Загружаем цели..." />
+          <Loader message={t("loading")} />
         </div>
       )}
 
       {!loading && goals.length === 0 && (
         <div className="rounded-xl border border-white/10 p-6 text-center">
-          <p className="text-white/50">Целей пока нет</p>
+          <p className="text-white/50">{t("emptyTitle")}</p>
           <button
             onClick={() => setShowForm(true)}
             className="mt-3 rounded-md border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10"
           >
-            Добавить первую цель
+            {t("addFirstGoal")}
           </button>
         </div>
       )}

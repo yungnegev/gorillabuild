@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { Loader } from "@/app/_components/Loader";
@@ -43,6 +44,10 @@ interface Props {
 
 export function ActiveWorkoutClient({ planId }: Props) {
   const router = useRouter();
+  const t = useTranslations("workout");
+  const tCommon = useTranslations("common");
+  const unit = tCommon("units.kg");
+
   const [workout, setWorkout] = useState<ActiveWorkout | null>(null);
   const [loading, setLoading] = useState(true);
   const [finishing, setFinishing] = useState(false);
@@ -58,7 +63,6 @@ export function ActiveWorkoutClient({ planId }: Props) {
       let res = await fetch("/api/workouts", { cache: "no-store" });
       let data = await res.json();
 
-      // Нет активной — создаём (из плана или пустую)
       const needNewFromPlan =
         planId != null &&
         res.ok &&
@@ -79,7 +83,6 @@ export function ActiveWorkoutClient({ planId }: Props) {
         data = await res.json();
       }
 
-      // Ставим в state только валидный объект тренировки (с id и exercises)
       if (!cancelled && res.ok && data && typeof data.id === "number" && Array.isArray(data.exercises)) {
         setWorkout(data);
       }
@@ -168,8 +171,8 @@ export function ActiveWorkoutClient({ planId }: Props) {
         ...prev,
         exercises: prev.exercises.map((ex) =>
           ex.id === workoutExerciseId
-            ? { ...ex, sets: [...ex.sets, newSet].sort((a, b) => a.order - b.order) }
-            : ex
+            ? { ...ex, sets: [ ...ex.sets, newSet ].sort((a, b) => a.order - b.order) }
+            : ex,
         ),
       };
     });
@@ -186,7 +189,7 @@ export function ActiveWorkoutClient({ planId }: Props) {
   if (loading) {
     return (
       <section className="flex min-h-[40vh] items-center justify-center">
-        <Loader message="Загрузка…" inline={false} />
+        <Loader message={t("loading")} inline={false} />
       </section>
     );
   }
@@ -194,13 +197,13 @@ export function ActiveWorkoutClient({ planId }: Props) {
   if (!workout) {
     return (
       <section className="space-y-4">
-        <p className="text-white/60">Не удалось загрузить тренировку</p>
+        <p className="text-white/60">{t("loadFailed")}</p>
         <Link
           href="/plans"
           className="inline-flex items-center gap-1.5 text-sm text-lime-300 hover:text-lime-200"
         >
           <span aria-hidden>←</span>
-          К планам
+          {t("toPlans")}
         </Link>
       </section>
     );
@@ -215,27 +218,27 @@ export function ActiveWorkoutClient({ planId }: Props) {
           <Link
             href="/plans"
             className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
-            aria-label="К планам"
+            aria-label={t("toPlansAria")}
           >
             <span aria-hidden>←</span>
-            Планы
+            {t("plans")}
           </Link>
-          <h1 className="text-2xl font-bold text-white">Активная тренировка</h1>
+          <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
         </div>
         <button
           type="button"
           onClick={() => setAddExerciseOpen(true)}
           className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/30"
         >
-          + Добавить упражнение
+          {t("addExercise")}
         </button>
       </header>
 
       {isEmpty && (
         <div className="rounded-xl border border-dashed border-white/20 bg-white/5 py-12 text-center">
-          <p className="text-white/80">Нет упражнений</p>
+          <p className="text-white/80">{t("emptyTitle")}</p>
           <p className="mt-1 text-sm text-white/50">
-            Нажмите «Добавить упражнение» и выберите из списка
+            {t("emptyDescription")}
           </p>
         </div>
       )}
@@ -259,8 +262,8 @@ export function ActiveWorkoutClient({ planId }: Props) {
                 <thead>
                   <tr className="border-b border-white/10 text-left text-white/50">
                     <th className="pb-2 pr-4 font-medium">#</th>
-                    <th className="pb-2 pr-3 font-medium">Вес, кг</th>
-                    <th className="pb-2 font-medium">Повторы</th>
+                    <th className="pb-2 pr-3 font-medium">{t("tableWeight", { unit })}</th>
+                    <th className="pb-2 font-medium">{t("tableReps")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -296,13 +299,13 @@ export function ActiveWorkoutClient({ planId }: Props) {
                                               sets: exInner.sets.map((s) =>
                                                 s.id === set.id
                                                   ? { ...s, weightKg: v ?? 0 }
-                                                  : s
+                                                  : s,
                                               ),
                                             }
-                                          : exInner
+                                          : exInner,
                                       ),
                                     }
-                                  : prev
+                                  : prev,
                               );
                             }
                           }}
@@ -339,13 +342,13 @@ export function ActiveWorkoutClient({ planId }: Props) {
                                               sets: exInner.sets.map((s) =>
                                                 s.id === set.id
                                                   ? { ...s, reps: v ?? 0 }
-                                                  : s
+                                                  : s,
                                               ),
                                             }
-                                          : exInner
+                                          : exInner,
                                       ),
                                     }
-                                  : prev
+                                  : prev,
                               );
                             }
                           }}
@@ -367,7 +370,7 @@ export function ActiveWorkoutClient({ planId }: Props) {
               onClick={() => addSet(ex.id)}
               className="mt-3 text-sm text-white/60 hover:text-white"
             >
-              + Добавить подход
+              {t("addSet")}
             </button>
           </li>
         ))}
@@ -380,7 +383,7 @@ export function ActiveWorkoutClient({ planId }: Props) {
           disabled={finishing}
           className="w-full rounded-xl bg-white py-3 text-sm font-semibold text-black hover:bg-white/90 disabled:opacity-50 sm:w-auto sm:min-w-[200px] sm:px-6"
         >
-          {finishing ? "Завершаем…" : "Завершить тренировку"}
+          {finishing ? t("finishing") : t("finish")}
         </button>
       </div>
 
@@ -400,10 +403,10 @@ export function ActiveWorkoutClient({ planId }: Props) {
               id="add-exercise-title"
               className="text-lg font-semibold text-white"
             >
-              Выберите упражнение
+              {t("dialogTitle")}
             </h2>
             {exercisesLoading ? (
-              <p className="mt-4 text-white/60">Загрузка…</p>
+              <p className="mt-4 text-white/60">{t("dialogLoading")}</p>
             ) : (
               <ul className="mt-4 max-h-64 space-y-1.5 overflow-y-auto">
                 {exercisesList.map((ex) => (
@@ -414,7 +417,7 @@ export function ActiveWorkoutClient({ planId }: Props) {
                       disabled={addingExerciseId !== null}
                       className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-left text-white hover:bg-white/10 disabled:opacity-50"
                     >
-                      {addingExerciseId === ex.id ? "Добавляем…" : ex.name}
+                      {addingExerciseId === ex.id ? t("adding") : ex.name}
                     </button>
                   </li>
                 ))}
@@ -427,7 +430,7 @@ export function ActiveWorkoutClient({ planId }: Props) {
                 disabled={addingExerciseId !== null}
                 className="rounded-lg border border-white/20 px-4 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-50"
               >
-                Отмена
+                {t("cancel")}
               </button>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { PlanListItem } from "@/lib/plans";
 import { PlanCard } from "./PlanCard";
 import { PlanForm } from "./PlanForm";
@@ -13,6 +14,7 @@ interface Props {
 
 export function PlansPageClient({ initialPlans }: Props) {
   const router = useRouter();
+  const t = useTranslations("plans.page");
   const [showForm, setShowForm] = useState(false);
 
   async function handleCreate(data: { name: string }) {
@@ -21,7 +23,7 @@ export function PlansPageClient({ initialPlans }: Props) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: data.name, exercises: [] }),
     });
-    if (!res.ok) throw new Error(`Ошибка: ${res.status}`);
+    if (!res.ok) throw new Error(t("createErrorStatus", { status: res.status }));
     setShowForm(false);
     router.refresh();
   }
@@ -29,7 +31,7 @@ export function PlansPageClient({ initialPlans }: Props) {
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold">Планы</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <div className="flex items-center gap-2">
           {!showForm && (
             <button
@@ -37,14 +39,14 @@ export function PlansPageClient({ initialPlans }: Props) {
               onClick={() => setShowForm(true)}
               className="rounded-md border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10"
             >
-              + Добавить план
+              {t("addPlan")}
             </button>
           )}
           <Link
             href="/workout/active"
             className="rounded-full bg-white px-4 py-2 text-sm font-medium text-black hover:bg-white/90"
           >
-            Start empty workout
+            {t("startEmptyWorkout")}
           </Link>
         </div>
       </div>
@@ -55,9 +57,9 @@ export function PlansPageClient({ initialPlans }: Props) {
 
       {initialPlans.length === 0 && !showForm && (
         <div className="rounded-xl border border-white/10 p-6 text-center">
-          <p className="text-white/50">Планов пока нет</p>
+          <p className="text-white/50">{t("emptyTitle")}</p>
           <p className="mt-2 text-sm text-white/40">
-            Нажмите «Добавить план», чтобы создать первый, или «Start empty workout» для пустой тренировки.
+            {t("emptyDescription")}
           </p>
         </div>
       )}

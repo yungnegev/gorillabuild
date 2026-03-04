@@ -1,0 +1,249 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "back": "Назад",
+    "units": {
+      "kg": "кг"
+    }
+  },
+  "app": {
+    "brand": "Gorilla Build",
+    "language": {
+      "label": "Язык",
+      "ru": "RU",
+      "en": "EN"
+    },
+    "mobileNav": {
+      "ariaLabel": "Мобильная навигация",
+      "workout": "Тренировка",
+      "plans": "Планы",
+      "friends": "Друзья",
+      "goal": "Цель",
+      "profile": "Профиль"
+    }
+  },
+  "landing": {
+    "heroTitle": "Тренируйся по плану. Следи за прогрессом. Стань сильнее.",
+    "heroDescription": "MVP-зоны вынесены отдельно: тренировки, планы, друзья и цель. Эта страница - публичный лендинг для первого входа.",
+    "startFree": "Начать бесплатно",
+    "signIn": "Войти",
+    "admin": "Админка"
+  },
+  "admin": {
+    "title": "Admin",
+    "toLanding": "На лендинг",
+    "placeholderTitle": "Админка (заглушка)",
+    "placeholderDescription": "Здесь будет панель управления: пользователи, контент и системные настройки."
+  },
+  "plans": {
+    "page": {
+      "title": "Планы",
+      "addPlan": "+ Добавить план",
+      "startEmptyWorkout": "Начать пустую тренировку",
+      "emptyTitle": "Планов пока нет",
+      "emptyDescription": "Нажмите «Добавить план», чтобы создать первый, или «Начать пустую тренировку» для пустой тренировки.",
+      "createErrorStatus": "Ошибка: {status}"
+    },
+    "form": {
+      "title": "Новый план",
+      "nameLabel": "Название",
+      "namePlaceholder": "Например: Силовая понедельник",
+      "requiredName": "Введите название плана",
+      "createFailed": "Не удалось создать план. Попробуйте ещё раз.",
+      "creating": "Создаём…",
+      "create": "Создать",
+      "cancel": "Отмена"
+    },
+    "detail": {
+      "backAria": "Назад к списку планов",
+      "saveErrorStatus": "Ошибка {status}",
+      "saveFailed": "Не удалось сохранить",
+      "deleteErrorStatus": "Ошибка {status}",
+      "deleteFailed": "Не удалось удалить план",
+      "saving": "Сохранение…",
+      "save": "Сохранить",
+      "startPlan": "Начать по плану",
+      "exercisesTitle": "Упражнения",
+      "emptyExercises": "В плане пока нет упражнений. Добавьте из списка ниже.",
+      "setsLabel": "Подходов:",
+      "removeExerciseAria": "Удалить упражнение",
+      "addLabel": "Добавить:",
+      "selectPlaceholder": "— выбрать —",
+      "deletePlan": "Удалить план",
+      "deleteConfirm": "Удалить план безвозвратно?",
+      "deleting": "Удаляем…",
+      "confirmDelete": "Да, удалить",
+      "cancel": "Отмена"
+    },
+    "card": {
+      "updatedAt": "Обновлён: {date}"
+    }
+  },
+  "friends": {
+    "page": {
+      "title": "Друзья",
+      "addFriend": "Добавить друга",
+      "incomingRequests": "Входящие заявки",
+      "emptyTitle": "Друзей пока нет",
+      "emptyDescription": "Нажмите «Добавить друга» и введите handle пользователя, чтобы отправить заявку.",
+      "sendRequestFailed": "Не удалось отправить заявку",
+      "acceptRequestFailed": "Не удалось принять заявку"
+    },
+    "form": {
+      "title": "Добавить друга",
+      "handleLabel": "Handle (ник в системе)",
+      "handleHelp": "Ник задаётся в профиле. При входе через Gmail его нужно указать отдельно.",
+      "handlePlaceholder": "например: gorilla42",
+      "requiredHandle": "Введите handle пользователя",
+      "sendFailed": "Не удалось отправить заявку. Попробуйте ещё раз.",
+      "submitting": "Отправка…",
+      "submit": "Отправить заявку",
+      "cancel": "Отмена"
+    },
+    "requestCard": {
+      "accepting": "Принятие…",
+      "accept": "Принять"
+    },
+    "detail": {
+      "backAria": "Назад",
+      "title": "Сравнение",
+      "modeAbsolute": "абсолют",
+      "modeRatio": "ratio",
+      "meLabel": "Вы",
+      "friendFallback": "Друг",
+      "mineShort": "Я",
+      "friendShort": "Друг",
+      "exercisesTitle": "Упражнения",
+      "emptyExercisesTitle": "Нет данных для сравнения",
+      "emptyExercisesDescription": "Нужно завершить хотя бы одну тренировку с упражнениями",
+      "noComparisonData": "Нет данных для сравнения — у кого-то ещё не было тренировок с этим упражнением",
+      "noBodyWeightData": "Нет записей массы тела — добавь вес в профиле, чтобы видеть относительную силу",
+      "loadDataFailed": "Не удалось загрузить данные",
+      "loadComparisonFailed": "Не удалось загрузить данные сравнения",
+      "loading": "Загрузка…"
+    }
+  },
+  "goals": {
+    "page": {
+      "title": "Цели",
+      "addGoal": "+ Добавить цель",
+      "loading": "Загружаем цели...",
+      "emptyTitle": "Целей пока нет",
+      "addFirstGoal": "Добавить первую цель",
+      "loadErrorStatus": "Ошибка загрузки: {status}",
+      "saveErrorStatus": "Ошибка сохранения: {status}",
+      "deleteFailed": "Не удалось удалить цель",
+      "unknownError": "Неизвестная ошибка"
+    },
+    "form": {
+      "newTitle": "Новая цель",
+      "editTitle": "Изменить цель",
+      "fillAllFields": "Заполни все поля",
+      "saveFailed": "Ошибка сохранения. Попробуй ещё раз.",
+      "exerciseLabel": "Упражнение",
+      "exercisePlaceholder": "Выберите упражнение",
+      "targetOneRmLabel": "Целевой 1ПМ ({unit})",
+      "deadlineLabel": "Дедлайн",
+      "saving": "Сохраняем...",
+      "save": "Сохранить",
+      "cancel": "Отмена"
+    },
+    "card": {
+      "editGoal": "Изменить цель",
+      "deleteGoal": "Удалить",
+      "achieved": "✓ Достигнуто!",
+      "remaining": "Осталось:",
+      "noData": "нет данных",
+      "current": "Текущий",
+      "target": "Цель",
+      "deadline": "Дедлайн"
+    }
+  },
+  "exerciseDetail": {
+    "backAria": "Назад",
+    "chartEmpty": "Нет завершённых тренировок с этим упражнением — график появится после первых результатов.",
+    "chartTitle": "1RM",
+    "modeAbsolute": "absolute",
+    "modeRatio": "ratio",
+    "addBodyWeight": "добавь массу тела",
+    "noRatioData": "Нет записей массы тела на даты тренировок — добавь вес в профиле",
+    "ratioTooltipLabel": "1RM/вес",
+    "historyTitle": "История",
+    "historyEntry": "{weight} {unit} × {reps} → 1RM {oneRm} {unit}",
+    "goalTitle": "Цель",
+    "goalSummary": "Целевой 1RM {target} {unit} до {date}",
+    "currentSummary": "Текущий 1RM: {current}",
+    "remainingSummary": "· осталось {remaining} {unit}",
+    "editGoal": "Изменить цель",
+    "noGoal": "Нет цели по этому упражнению",
+    "setGoal": "Поставить цель"
+  },
+  "workout": {
+    "loading": "Загрузка…",
+    "loadFailed": "Не удалось загрузить тренировку",
+    "toPlans": "К планам",
+    "toPlansAria": "К планам",
+    "plans": "Планы",
+    "title": "Активная тренировка",
+    "addExercise": "+ Добавить упражнение",
+    "emptyTitle": "Нет упражнений",
+    "emptyDescription": "Нажмите «Добавить упражнение» и выберите из списка",
+    "tableWeight": "Вес, {unit}",
+    "tableReps": "Повторы",
+    "addSet": "+ Добавить подход",
+    "finishing": "Завершаем…",
+    "finish": "Завершить тренировку",
+    "dialogTitle": "Выберите упражнение",
+    "dialogLoading": "Загрузка…",
+    "adding": "Добавляем…",
+    "cancel": "Отмена"
+  },
+  "profile": {
+    "page": {
+      "title": "Профиль",
+      "loading": "Загружаем данные профиля...",
+      "profileErrorStatus": "Ошибка профиля: {status}",
+      "weightErrorStatus": "Ошибка веса: {status}",
+      "unknownError": "Неизвестная ошибка",
+      "invalidWeight": "Укажи корректный вес",
+      "saveErrorStatus": "Ошибка сохранения: {status}",
+      "name": "Имя"
+    },
+    "username": {
+      "label": "Ник",
+      "copyTitle": "Скопировать",
+      "copyAria": "Скопировать ник",
+      "inputTitle": "Задаётся один раз, по нику вас добавляют в друзья",
+      "copyFailed": "Не удалось скопировать",
+      "enterUsername": "Введите ник",
+      "usernameTaken": "Этот ник уже занят",
+      "saveFailed": "Не удалось сохранить",
+      "genericError": "Ошибка",
+      "save": "Сохранить"
+    },
+    "bodyWeightForm": {
+      "title": "Добавить массу тела",
+      "entryDateToday": "Дата записи: сегодня ({today})",
+      "weightLabel": "Вес ({unit})",
+      "saving": "Сохраняем...",
+      "add": "Добавить"
+    },
+    "history": {
+      "title": "История веса",
+      "empty": "Записей пока нет"
+    },
+    "chart": {
+      "title": "Динамика веса",
+      "range": "{min}-{max} {unit}",
+      "tooltipWeight": "Вес"
+    }
+  },
+  "mobile": {
+    "auth": {
+      "signedIn": "Выполнен вход",
+      "notSignedIn": "Не выполнен вход"
+    }
+  }
+}

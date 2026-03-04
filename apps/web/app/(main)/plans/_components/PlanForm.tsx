@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   onSubmit: (data: { name: string }) => Promise<void>;
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function PlanForm({ onSubmit, onCancel }: Props) {
+  const t = useTranslations("plans.form");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +18,7 @@ export function PlanForm({ onSubmit, onCancel }: Props) {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("Введите название плана");
+      setError(t("requiredName"));
       return;
     }
 
@@ -25,7 +27,7 @@ export function PlanForm({ onSubmit, onCancel }: Props) {
     try {
       await onSubmit({ name: trimmed });
     } catch {
-      setError("Не удалось создать план. Попробуйте ещё раз.");
+      setError(t("createFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -33,17 +35,17 @@ export function PlanForm({ onSubmit, onCancel }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-xl border border-white/10 p-4">
-      <p className="font-medium">Новый план</p>
+      <p className="font-medium">{t("title")}</p>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       <label className="block">
-        <span className="text-sm text-white/60">Название</span>
+        <span className="text-sm text-white/60">{t("nameLabel")}</span>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Например: Силовая понедельник"
+          placeholder={t("namePlaceholder")}
           className="mt-1 w-full rounded-md border border-white/20 bg-white/5 px-3 py-2 text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none"
           autoFocus
         />
@@ -55,7 +57,7 @@ export function PlanForm({ onSubmit, onCancel }: Props) {
           disabled={submitting}
           className="rounded-md bg-white px-3 py-1.5 text-sm font-medium text-black disabled:opacity-50"
         >
-          {submitting ? "Создаём…" : "Создать"}
+          {submitting ? t("creating") : t("create")}
         </button>
         <button
           type="button"
@@ -63,7 +65,7 @@ export function PlanForm({ onSubmit, onCancel }: Props) {
           disabled={submitting}
           className="rounded-md border border-white/20 px-3 py-1.5 text-sm hover:bg-white/10 disabled:opacity-50"
         >
-          Отмена
+          {t("cancel")}
         </button>
       </div>
     </form>

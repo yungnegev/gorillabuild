@@ -3,6 +3,7 @@
 import type { BodyWeightEntry, OneRmPoint } from "@gorillabuild/shared/schemas";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 import {
   CartesianGrid,
@@ -31,13 +32,6 @@ type Props = {
   } | null;
 };
 
-const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
-
-/** Последняя запись массы тела на дату или раньше */
 function getBodyWeightOnOrBefore(entries: BodyWeightEntry[], dateStr: string): number | null {
   const date = dateStr.slice(0, 10);
   const onOrBefore = entries.filter((e) => e.date <= date).sort((a, b) => b.date.localeCompare(a.date));
@@ -51,6 +45,21 @@ export function ExerciseDetailClient({
   goal,
 }: Props) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("exerciseDetail");
+  const tCommon = useTranslations("common");
+  const unit = tCommon("units.kg");
+
+  const dateFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        day: "2-digit",
+        month: "short",
+        timeZone: "UTC",
+      }),
+    [locale],
+  );
+
   const [chartMode, setChartMode] = useState<ChartMode>("absolute");
   const hasBodyWeight = bodyWeightEntries.length > 0;
 
@@ -81,29 +90,28 @@ export function ExerciseDetailClient({
           type="button"
           onClick={() => router.back()}
           className="text-white/60 hover:text-white"
-          aria-label="Назад"
+          aria-label={t("backAria")}
         >
           ←
         </button>
         <h1 className="text-2xl font-bold">{exercise.name}</h1>
       </div>
 
-      {/* График 1RM */}
       {history.length === 0 ? (
         <div className="rounded-xl border border-white/10 p-4 text-center text-white/60">
-          Нет завершённых тренировок с этим упражнением — график появится после первых результатов.
+          {t("chartEmpty")}
         </div>
       ) : (
         <div className="space-y-3 rounded-xl border border-white/10 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-medium">1RM</p>
+            <p className="font-medium">{t("chartTitle")}</p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setChartMode("absolute")}
                 className={`rounded px-2 py-1 text-sm ${chartMode === "absolute" ? "bg-white/20 text-white" : "text-white/60 hover:text-white"}`}
               >
-                absolute
+                {t("modeAbsolute")}
               </button>
               {hasBodyWeight ? (
                 <button
@@ -111,14 +119,14 @@ export function ExerciseDetailClient({
                   onClick={() => setChartMode("ratio")}
                   className={`rounded px-2 py-1 text-sm ${chartMode === "ratio" ? "bg-white/20 text-white" : "text-white/60 hover:text-white"}`}
                 >
-                  ratio
+                  {t("modeRatio")}
                 </button>
               ) : (
                 <Link
                   href="/profile"
                   className="text-sm text-white/50 underline hover:text-white/70"
                 >
-                  добавь массу тела
+                  {t("addBodyWeight")}
                 </Link>
               )}
             </div>
@@ -136,7 +144,7 @@ export function ExerciseDetailClient({
                     dataKey="dateTime"
                     type="number"
                     scale="time"
-                    domain={["dataMin", "dataMax"]}
+                    domain={[ "dataMin", "dataMax" ]}
                     tickLine={false}
                     axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
                     tickMargin={8}
@@ -145,13 +153,13 @@ export function ExerciseDetailClient({
                   />
                   <YAxis
                     type="number"
-                    domain={["auto", "auto"]}
+                    domain={[ "auto", "auto" ]}
                     tickCount={4}
                     width={36}
                     tickLine={false}
                     axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
                     tick={{ fill: "rgba(255,255,255,0.55)", fontSize: 8 }}
-                    tickFormatter={(v: number) => `${v} кг`}
+                    tickFormatter={(v: number) => `${v} ${unit}`}
                   />
                   <Tooltip
                     cursor={{ stroke: "rgba(255,255,255,0.2)" }}
@@ -162,7 +170,7 @@ export function ExerciseDetailClient({
                       color: "white",
                     }}
                     formatter={(value: number | undefined) =>
-                      [value != null ? `${value} кг` : "—", "1RM"]
+                      [value != null ? `${value} ${unit}` : "—", t("chartTitle")]
                     }
                     labelFormatter={(v) => dateFormatter.format(new Date(v))}
                   />
@@ -188,7 +196,7 @@ export function ExerciseDetailClient({
                     dataKey="dateTime"
                     type="number"
                     scale="time"
-                    domain={["dataMin", "dataMax"]}
+                    domain={[ "dataMin", "dataMax" ]}
                     tickLine={false}
                     axisLine={{ stroke: "rgba(255,255,255,0.2)" }}
                     tickMargin={8}
@@ -197,7 +205,7 @@ export function ExerciseDetailClient({
                   />
                   <YAxis
                     type="number"
-                    domain={["auto", "auto"]}
+                    domain={[ "auto", "auto" ]}
                     tickCount={4}
                     width={36}
                     tickLine={false}
@@ -214,7 +222,7 @@ export function ExerciseDetailClient({
                       color: "white",
                     }}
                     formatter={(value: number | undefined) =>
-                      [value != null ? value.toFixed(3) : "—", "1RM/вес"]
+                      [value != null ? value.toFixed(3) : "—", t("ratioTooltipLabel")]
                     }
                     labelFormatter={(v) => dateFormatter.format(new Date(v))}
                   />
@@ -231,19 +239,18 @@ export function ExerciseDetailClient({
             )}
             {chartMode === "ratio" && ratioData.length === 0 && hasBodyWeight && (
               <p className="flex h-full items-center justify-center text-sm text-white/50">
-                Нет записей массы тела на даты тренировок — добавь вес в профиле
+                {t("noRatioData")}
               </p>
             )}
           </div>
         </div>
       )}
 
-      {/* История тренировок */}
       {history.length > 0 && (
         <div className="space-y-2">
-          <p className="font-medium">История</p>
+          <p className="font-medium">{t("historyTitle")}</p>
           <ul className="space-y-2">
-            {[...history].reverse().map((point) => (
+            {[ ...history ].reverse().map((point) => (
               <li
                 key={point.workoutId}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm"
@@ -252,7 +259,12 @@ export function ExerciseDetailClient({
                   {dateFormatter.format(new Date(point.date))}
                 </span>
                 <span className="text-white/90">
-                  {point.bestWeightKg} кг × {point.bestReps} → 1RM {point.oneRm.toFixed(1)} кг
+                  {t("historyEntry", {
+                    weight: point.bestWeightKg,
+                    reps: point.bestReps,
+                    oneRm: point.oneRm.toFixed(1),
+                    unit,
+                  })}
                 </span>
               </li>
             ))}
@@ -260,20 +272,26 @@ export function ExerciseDetailClient({
         </div>
       )}
 
-      {/* Цель по упражнению */}
       <div className="space-y-2">
         {goal ? (
           <div className="space-y-3 rounded-xl border border-white/10 p-4">
-            <p className="font-medium">Цель</p>
+            <p className="font-medium">{t("goalTitle")}</p>
             <p className="text-sm text-white/70">
-              Целевой 1RM {goal.targetOneRm} кг до{" "}
-              {new Date(goal.targetDate).toLocaleDateString("ru-RU")}
+              {t("goalSummary", {
+                target: goal.targetOneRm,
+                unit,
+                date: new Date(goal.targetDate).toLocaleDateString(locale),
+              })}
             </p>
             <p className="text-sm text-white/70">
-              Текущий 1RM:{" "}
-              {goal.currentOneRm != null ? `${goal.currentOneRm.toFixed(1)} кг` : "—"}
+              {t("currentSummary", {
+                current:
+                  goal.currentOneRm != null
+                    ? `${goal.currentOneRm.toFixed(1)} ${unit}`
+                    : "—",
+              })}
               {goal.remainingKg != null && goal.remainingKg > 0 && (
-                <> · осталось {goal.remainingKg.toFixed(1)} кг</>
+                <> {t("remainingSummary", { remaining: goal.remainingKg.toFixed(1), unit })}</>
               )}
             </p>
             <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -286,17 +304,17 @@ export function ExerciseDetailClient({
               href="/goal"
               className="inline-block text-sm text-white/70 underline hover:text-white"
             >
-              Изменить цель
+              {t("editGoal")}
             </Link>
           </div>
         ) : (
           <div className="rounded-xl border border-white/10 p-4">
-            <p className="mb-2 text-sm text-white/70">Нет цели по этому упражнению</p>
+            <p className="mb-2 text-sm text-white/70">{t("noGoal")}</p>
             <Link
               href={`/goal?exerciseId=${exercise.id}`}
               className="text-sm text-white underline hover:text-white/80"
             >
-              Поставить цель
+              {t("setGoal")}
             </Link>
           </div>
         )}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface Props {
   today: string;
   weightKg: string;
@@ -19,15 +21,19 @@ export function BodyWeightForm({
   onSubmit,
   onWeightChange,
 }: Props) {
+  const t = useTranslations("profile.bodyWeightForm");
+  const tCommon = useTranslations("common");
+  const unit = tCommon("units.kg");
+
   return (
     <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-white/10 p-4">
-      <p className="font-medium">Добавить массу тела</p>
+      <p className="font-medium">{t("title")}</p>
 
-      <p className="text-sm text-white/60">Дата записи: сегодня ({today})</p>
+      <p className="text-sm text-white/60">{t("entryDateToday", { today })}</p>
 
       <div className="space-y-1">
         <label htmlFor="weightKg" className="text-sm text-white/70">
-          Вес (кг)
+          {t("weightLabel", { unit })}
         </label>
         <input
           id="weightKg"
@@ -46,7 +52,7 @@ export function BodyWeightForm({
         disabled={submitting || disabled}
         className="rounded-md border border-white/20 px-3 py-2 hover:bg-white/10 disabled:opacity-50"
       >
-        {submitting ? "Сохраняем..." : "Добавить"}
+        {submitting ? t("saving") : t("add")}
       </button>
     </form>
   );

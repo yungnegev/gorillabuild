@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import {
   BoltIcon,
@@ -12,12 +13,12 @@ import {
 } from "@heroicons/react/24/outline";
 
 const navItems = [
-  { href: "/workout", label: "Workout", icon: BoltIcon },
-  { href: "/plans", label: "Plans", icon: CalendarDaysIcon },
-  { href: "/friends", label: "Friends", icon: UsersIcon },
-  { href: "/goal", label: "Goal", icon: FlagIcon },
-  { href: "/profile", label: "Profile", icon: UserIcon },
-];
+  { href: "/workout", key: "workout", icon: BoltIcon },
+  { href: "/plans", key: "plans", icon: CalendarDaysIcon },
+  { href: "/friends", key: "friends", icon: UsersIcon },
+  { href: "/goal", key: "goal", icon: FlagIcon },
+  { href: "/profile", key: "profile", icon: UserIcon },
+] as const;
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -25,6 +26,7 @@ function isActive(pathname: string, href: string) {
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("app.mobileNav");
   const isAuthPage = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
 
   if (isAuthPage) {
@@ -33,7 +35,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      aria-label="Mobile navigation"
+      aria-label={t("ariaLabel")}
       className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 backdrop-blur"
     >
       <ul className="mx-auto grid h-16 max-w-5xl grid-cols-5">
@@ -51,7 +53,7 @@ export function MobileBottomNav() {
                 }`}
               >
                 <Icon className="h-6 w-6" aria-hidden="true" />
-                <span className="text-[10px] leading-none">{item.label}</span>
+                <span className="text-[10px] leading-none">{t(item.key)}</span>
               </Link>
             </li>
           );

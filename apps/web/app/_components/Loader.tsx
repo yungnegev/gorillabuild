@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 interface LoaderProps {
   message?: string;
   className?: string;
@@ -8,6 +10,8 @@ interface LoaderProps {
 }
 
 export function Loader({ message, className = "", inline = true }: LoaderProps) {
+  const t = useTranslations("common");
+
   const content = (
     <>
       <span
@@ -23,7 +27,7 @@ export function Loader({ message, className = "", inline = true }: LoaderProps) 
       <div
         className={className || "flex items-center gap-3"}
         role="status"
-        aria-label={message ?? "Загрузка"}
+        aria-label={message ?? t("loading")}
       >
         {content}
       </div>
@@ -34,7 +38,7 @@ export function Loader({ message, className = "", inline = true }: LoaderProps) 
     <div
       className={className || "flex flex-col items-center justify-center gap-3"}
       role="status"
-      aria-label={message ?? "Загрузка"}
+      aria-label={message ?? t("loading")}
     >
       {content}
     </div>

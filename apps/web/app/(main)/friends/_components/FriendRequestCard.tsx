@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { AvatarPlaceholder } from "@/app/_components/AvatarPlaceholder";
 import type { FriendRequestItem } from "@/lib/friends";
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function FriendRequestCard({ request, isAccepting = false, onAccept }: Props) {
+  const t = useTranslations("friends.requestCard");
   const [imageError, setImageError] = useState(false);
   const displayName = request.name || request.username || request.fromUserId;
   const showImage = request.imageUrl && !imageError;
@@ -39,11 +41,11 @@ export function FriendRequestCard({ request, isAccepting = false, onAccept }: Pr
       </div>
       <button
         type="button"
-        onClick={onAccept}
-        disabled={isAccepting}
-        className="shrink-0 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isAccepting ? "Принятие…" : "Принять"}
+      onClick={onAccept}
+      disabled={isAccepting}
+      className="shrink-0 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+        {isAccepting ? t("accepting") : t("accept")}
       </button>
     </li>
   );

@@ -1,16 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { MobileBottomNav } from "../_components/MobileBottomNav";
+import { LanguageToggle } from "../_components/LanguageToggle";
 
-export default function MainLayout({
+export default async function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const t = await getTranslations("app");
+
   return (
     <>
       <header className="border-b border-white/10">
-        <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
           <Link href="/" className="flex items-center gap-3">
             <Image
               src="/logo.png"
@@ -20,8 +24,11 @@ export default function MainLayout({
               className="size-7 rounded-md"
               aria-hidden
             />
-            <span className="text-sm font-semibold tracking-wide text-white">Gorilla Build</span>
+            <span className="text-sm font-semibold tracking-wide text-white">
+              {t("brand")}
+            </span>
           </Link>
+          <LanguageToggle />
         </div>
       </header>
 

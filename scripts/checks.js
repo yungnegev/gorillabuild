@@ -10,6 +10,7 @@ const colors = {
 };
 
 const checks = [
+  { name: "i18n", command: "bun i18n:validate" },
   { name: "Lint", command: "bun lint" },
   { name: "TypeCheck", command: "bun typecheck" },
   { name: "Build", command: "bun run build" },

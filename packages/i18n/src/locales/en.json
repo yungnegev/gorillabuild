@@ -1,0 +1,249 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "units": {
+      "kg": "kg"
+    }
+  },
+  "app": {
+    "brand": "Gorilla Build",
+    "language": {
+      "label": "Language",
+      "ru": "RU",
+      "en": "EN"
+    },
+    "mobileNav": {
+      "ariaLabel": "Mobile navigation",
+      "workout": "Workout",
+      "plans": "Plans",
+      "friends": "Friends",
+      "goal": "Goal",
+      "profile": "Profile"
+    }
+  },
+  "landing": {
+    "heroTitle": "Train by plan. Track progress. Get stronger.",
+    "heroDescription": "MVP zones are split out: workouts, plans, friends, and goals. This page is a public landing page for the first visit.",
+    "startFree": "Start free",
+    "signIn": "Sign in",
+    "admin": "Admin"
+  },
+  "admin": {
+    "title": "Admin",
+    "toLanding": "Back to landing",
+    "placeholderTitle": "Admin (placeholder)",
+    "placeholderDescription": "This will become the control panel: users, content, and system settings."
+  },
+  "plans": {
+    "page": {
+      "title": "Plans",
+      "addPlan": "+ Add plan",
+      "startEmptyWorkout": "Start empty workout",
+      "emptyTitle": "No plans yet",
+      "emptyDescription": "Click \"Add plan\" to create your first one, or \"Start empty workout\" for a blank session.",
+      "createErrorStatus": "Error: {status}"
+    },
+    "form": {
+      "title": "New plan",
+      "nameLabel": "Name",
+      "namePlaceholder": "For example: Strength Monday",
+      "requiredName": "Enter a plan name",
+      "createFailed": "Failed to create plan. Please try again.",
+      "creating": "Creating…",
+      "create": "Create",
+      "cancel": "Cancel"
+    },
+    "detail": {
+      "backAria": "Back to plans",
+      "saveErrorStatus": "Error {status}",
+      "saveFailed": "Failed to save",
+      "deleteErrorStatus": "Error {status}",
+      "deleteFailed": "Failed to delete plan",
+      "saving": "Saving…",
+      "save": "Save",
+      "startPlan": "Start plan",
+      "exercisesTitle": "Exercises",
+      "emptyExercises": "No exercises in this plan yet. Add them below.",
+      "setsLabel": "Sets:",
+      "removeExerciseAria": "Remove exercise",
+      "addLabel": "Add:",
+      "selectPlaceholder": "— select —",
+      "deletePlan": "Delete plan",
+      "deleteConfirm": "Delete this plan permanently?",
+      "deleting": "Deleting…",
+      "confirmDelete": "Yes, delete",
+      "cancel": "Cancel"
+    },
+    "card": {
+      "updatedAt": "Updated: {date}"
+    }
+  },
+  "friends": {
+    "page": {
+      "title": "Friends",
+      "addFriend": "Add friend",
+      "incomingRequests": "Incoming requests",
+      "emptyTitle": "No friends yet",
+      "emptyDescription": "Click \"Add friend\" and enter a user's handle to send a request.",
+      "sendRequestFailed": "Failed to send request",
+      "acceptRequestFailed": "Failed to accept request"
+    },
+    "form": {
+      "title": "Add friend",
+      "handleLabel": "Handle (in-app nickname)",
+      "handleHelp": "Handle is set in profile. If you sign in with Gmail, set it manually.",
+      "handlePlaceholder": "for example: gorilla42",
+      "requiredHandle": "Enter user's handle",
+      "sendFailed": "Failed to send request. Please try again.",
+      "submitting": "Sending…",
+      "submit": "Send request",
+      "cancel": "Cancel"
+    },
+    "requestCard": {
+      "accepting": "Accepting…",
+      "accept": "Accept"
+    },
+    "detail": {
+      "backAria": "Back",
+      "title": "Comparison",
+      "modeAbsolute": "absolute",
+      "modeRatio": "ratio",
+      "meLabel": "You",
+      "friendFallback": "Friend",
+      "mineShort": "Me",
+      "friendShort": "Friend",
+      "exercisesTitle": "Exercises",
+      "emptyExercisesTitle": "No data to compare",
+      "emptyExercisesDescription": "At least one workout with exercises is required.",
+      "noComparisonData": "No comparison data yet — one of you has no workouts for this exercise.",
+      "noBodyWeightData": "No body-weight entries — add weight in profile to see relative strength.",
+      "loadDataFailed": "Failed to load data",
+      "loadComparisonFailed": "Failed to load comparison data",
+      "loading": "Loading…"
+    }
+  },
+  "goals": {
+    "page": {
+      "title": "Goals",
+      "addGoal": "+ Add goal",
+      "loading": "Loading goals...",
+      "emptyTitle": "No goals yet",
+      "addFirstGoal": "Add first goal",
+      "loadErrorStatus": "Load error: {status}",
+      "saveErrorStatus": "Save error: {status}",
+      "deleteFailed": "Failed to delete goal",
+      "unknownError": "Unknown error"
+    },
+    "form": {
+      "newTitle": "New goal",
+      "editTitle": "Edit goal",
+      "fillAllFields": "Fill all fields",
+      "saveFailed": "Save failed. Please try again.",
+      "exerciseLabel": "Exercise",
+      "exercisePlaceholder": "Select exercise",
+      "targetOneRmLabel": "Target 1RM ({unit})",
+      "deadlineLabel": "Deadline",
+      "saving": "Saving...",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "card": {
+      "editGoal": "Edit goal",
+      "deleteGoal": "Delete",
+      "achieved": "✓ Achieved!",
+      "remaining": "Remaining:",
+      "noData": "no data",
+      "current": "Current",
+      "target": "Target",
+      "deadline": "Deadline"
+    }
+  },
+  "exerciseDetail": {
+    "backAria": "Back",
+    "chartEmpty": "No finished workouts with this exercise yet — the chart appears after first results.",
+    "chartTitle": "1RM",
+    "modeAbsolute": "absolute",
+    "modeRatio": "ratio",
+    "addBodyWeight": "add body weight",
+    "noRatioData": "No body-weight entries for workout dates — add weight in profile.",
+    "ratioTooltipLabel": "1RM/weight",
+    "historyTitle": "History",
+    "historyEntry": "{weight} {unit} × {reps} → 1RM {oneRm} {unit}",
+    "goalTitle": "Goal",
+    "goalSummary": "Target 1RM {target} {unit} by {date}",
+    "currentSummary": "Current 1RM: {current}",
+    "remainingSummary": "· {remaining} {unit} left",
+    "editGoal": "Edit goal",
+    "noGoal": "No goal for this exercise",
+    "setGoal": "Set goal"
+  },
+  "workout": {
+    "loading": "Loading…",
+    "loadFailed": "Failed to load workout",
+    "toPlans": "To plans",
+    "toPlansAria": "To plans",
+    "plans": "Plans",
+    "title": "Active workout",
+    "addExercise": "+ Add exercise",
+    "emptyTitle": "No exercises",
+    "emptyDescription": "Click \"Add exercise\" and choose one from the list.",
+    "tableWeight": "Weight, {unit}",
+    "tableReps": "Reps",
+    "addSet": "+ Add set",
+    "finishing": "Finishing…",
+    "finish": "Finish workout",
+    "dialogTitle": "Select exercise",
+    "dialogLoading": "Loading…",
+    "adding": "Adding…",
+    "cancel": "Cancel"
+  },
+  "profile": {
+    "page": {
+      "title": "Profile",
+      "loading": "Loading profile data...",
+      "profileErrorStatus": "Profile error: {status}",
+      "weightErrorStatus": "Weight error: {status}",
+      "unknownError": "Unknown error",
+      "invalidWeight": "Enter a valid weight",
+      "saveErrorStatus": "Save error: {status}",
+      "name": "Name"
+    },
+    "username": {
+      "label": "Username",
+      "copyTitle": "Copy",
+      "copyAria": "Copy username",
+      "inputTitle": "Set once; this username is used to add you as a friend",
+      "copyFailed": "Failed to copy",
+      "enterUsername": "Enter username",
+      "usernameTaken": "This username is already taken",
+      "saveFailed": "Failed to save",
+      "genericError": "Error",
+      "save": "Save"
+    },
+    "bodyWeightForm": {
+      "title": "Add body weight",
+      "entryDateToday": "Entry date: today ({today})",
+      "weightLabel": "Weight ({unit})",
+      "saving": "Saving...",
+      "add": "Add"
+    },
+    "history": {
+      "title": "Weight history",
+      "empty": "No entries yet"
+    },
+    "chart": {
+      "title": "Weight trend",
+      "range": "{min}-{max} {unit}",
+      "tooltipWeight": "Weight"
+    }
+  },
+  "mobile": {
+    "auth": {
+      "signedIn": "Signed in",
+      "notSignedIn": "Not signed in"
+    }
+  }
+}

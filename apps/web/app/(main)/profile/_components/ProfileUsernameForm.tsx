@@ -3,6 +3,7 @@
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   currentUsername: string | null;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
+  const t = useTranslations("profile.username");
   const [username, setUsername] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      setError("Не удалось скопировать");
+      setError(t("copyFailed"));
     }
   }
 
@@ -31,7 +33,7 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
     e.preventDefault();
     const trimmed = username.trim();
     if (!trimmed) {
-      setError("Введите ник");
+      setError(t("enterUsername"));
       return;
     }
 
@@ -47,15 +49,15 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
       if (!res.ok) {
         const message =
           res.status === 409
-            ? "Этот ник уже занят"
+            ? t("usernameTaken")
             : typeof data.error === "string"
               ? data.error
-              : "Не удалось сохранить";
+              : t("saveFailed");
         throw new Error(message);
       }
       onSaved(trimmed);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка");
+      setError(err instanceof Error ? err.message : t("genericError"));
     } finally {
       setSubmitting(false);
     }
@@ -65,13 +67,13 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
     return (
       <div className="rounded-xl border border-white/10 px-4 py-3 text-sm">
         <div className="flex items-center gap-2">
-          <span className="text-white/70">Ник</span>
+          <span className="text-white/70">{t("label")}</span>
           <span className="text-white">{currentUsername}</span>
           <button
             type="button"
             onClick={handleCopy}
-            title="Скопировать"
-            aria-label="Скопировать ник"
+            title={t("copyTitle")}
+            aria-label={t("copyAria")}
             className="cursor-pointer rounded p-0.5 text-white/50 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30"
           >
             {copied ? (
@@ -93,7 +95,7 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
     >
       <div className="flex flex-wrap items-center gap-2">
         <label htmlFor="profile-username" className="text-white/50">
-          Ник
+          {t("label")}
         </label>
         <input
           id="profile-username"
@@ -101,7 +103,7 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="gorilla42"
-          title="Задаётся один раз, по нику вас добавляют в друзья"
+          title={t("inputTitle")}
           className="rounded-md border border-white/20 bg-white/5 px-3 py-1.5 text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none min-w-[10rem]"
         />
         <button
@@ -109,7 +111,7 @@ export function ProfileUsernameForm({ currentUsername, onSaved }: Props) {
           disabled={submitting}
           className="rounded-md bg-white px-3 py-1.5 text-sm font-medium text-black disabled:opacity-50"
         >
-          {submitting ? "…" : "Сохранить"}
+          {submitting ? "…" : t("save")}
         </button>
       </div>
       {error && <p className="mt-1.5 text-red-400">{error}</p>}

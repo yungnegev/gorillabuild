@@ -2,6 +2,7 @@
 
 import type { BodyWeightEntry, User } from "@gorillabuild/shared/schemas";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader } from "@/app/_components/Loader";
 import { BodyWeightChart } from "./BodyWeightChart";
 import { BodyWeightForm } from "./BodyWeightForm";
@@ -20,6 +21,7 @@ function pickLatestEntry(entries: BodyWeightEntry[]): BodyWeightEntry | null {
 }
 
 export function ProfilePageClient() {
+  const t = useTranslations("profile.page");
   const [user, setUser] = useState<User | null>(null);
   const [entries, setEntries] = useState<BodyWeightEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,8 +44,8 @@ export function ProfilePageClient() {
           fetch("/api/body-weight", { cache: "no-store" }),
         ]);
 
-        if (!userRes.ok) throw new Error(`Ошибка профиля: ${userRes.status}`);
-        if (!entriesRes.ok) throw new Error(`Ошибка веса: ${entriesRes.status}`);
+        if (!userRes.ok) throw new Error(t("profileErrorStatus", { status: userRes.status }));
+        if (!entriesRes.ok) throw new Error(t("weightErrorStatus", { status: entriesRes.status }));
 
         const [userData, entriesData] = await Promise.all([
           userRes.json() as Promise<User>,
@@ -60,7 +62,7 @@ export function ProfilePageClient() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Неизвестная ошибка");
+          setError(err instanceof Error ? err.message : t("unknownError"));
         }
       } finally {
         if (!cancelled) {
@@ -74,14 +76,14 @@ export function ProfilePageClient() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     const numericWeight = Number(weightKg);
     if (!Number.isFinite(numericWeight) || numericWeight <= 0) {
-      setError("Укажи корректный вес");
+      setError(t("invalidWeight"));
       return;
     }
 
@@ -95,13 +97,13 @@ export function ProfilePageClient() {
         body: JSON.stringify({ date: today, weightKg: numericWeight }),
       });
 
-      if (!res.ok) throw new Error(`Ошибка сохранения: ${res.status}`);
+      if (!res.ok) throw new Error(t("saveErrorStatus", { status: res.status }));
 
       const created = (await res.json()) as BodyWeightEntry;
       setEntries((prev) => [created, ...prev]);
       setWeightKg(created.weightKg.toString());
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Неизвестная ошибка");
+      setError(err instanceof Error ? err.message : t("unknownError"));
     } finally {
       setSubmitting(false);
     }
@@ -110,9 +112,9 @@ export function ProfilePageClient() {
   if (loading) {
     return (
       <section className="space-y-4">
-        <h1 className="text-2xl font-bold">Профиль</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <div className="rounded-xl border border-white/10 p-4">
-          <Loader message="Загружаем данные профиля..." />
+          <Loader message={t("loading")} />
         </div>
       </section>
     );
@@ -120,13 +122,13 @@ export function ProfilePageClient() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-bold">Профиль</h1>
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
 
       {user && (
         <>
           <div className="rounded-xl border border-white/10 p-4 text-sm">
             <p className="text-white/70">
-              Имя: <span className="text-white">{user.name ?? "—"}</span>
+              {t("name")}: <span className="text-white">{user.name ?? "—"}</span>
             </p>
           </div>
 
